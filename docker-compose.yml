@@ -1,0 +1,24 @@
+# Local stack. Every port binds to 127.0.0.1 only: nothing is reachable from the LAN or internet.
+# Friends reach the game exclusively through Tailscale Serve (see README).
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hazeschaden
+      POSTGRES_USER: hazeschaden
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # server:  (added once apps/server exists)
+  #   build: ./apps/server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "127.0.0.1:2567:2567"
+  #   depends_on: [postgres]
+
+volumes:
+  pgdata:

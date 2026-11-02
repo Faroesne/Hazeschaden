@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # No pnpm-lock.yaml committed yet. After the first local `pnpm install`, commit it,
+      # add `cache: pnpm` above and drop `--no-frozen-lockfile`.
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      # Report only until the starting values are tuned; switch to `--strict` afterwards.
+      - name: Balance report
+        run: pnpm balance --seeds 10 >> "$GITHUB_STEP_SUMMARY"
