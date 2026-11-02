@@ -21,7 +21,6 @@ Empfohlen: Code im WSL2-Dateisystem (z. B. `~/code/hazeschaden`), nicht unter `C
 # einmalig in WSL2 (Ubuntu): Node 22 + pnpm
 corepack enable
 pnpm install
-git add pnpm-lock.yaml && git commit -m "Add lockfile"
 
 pnpm dev            # Spiel starten → http://127.0.0.1:5173
 pnpm check          # Typecheck + Tests
