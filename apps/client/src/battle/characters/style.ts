@@ -28,12 +28,20 @@ export const MAT = {
   gold: { base: "#ffcf3f", shade: "#c9902a", light: "#fff0a8" },
   chain: { base: "#9aa3b4", shade: "#6b7385", light: "#c4cbd8" },
   bronze: { base: "#d08a4a", shade: "#9a5c2a" },
-  cloth: { base: "#3a3150", shade: "#241e33" },
+  cloth: { base: "#3a3150", shade: "#241e33", light: "#51466e" },
   skinLight: { base: "#f6cfa6", shade: "#d9a77c" },
   skinMid: { base: "#d39a6a", shade: "#a97549" },
   skinDark: { base: "#8f5d3d", shade: "#6d4329" },
   hairDark: { base: "#3b2a22", shade: "#24180f" },
   beard: { base: "#7a4a26", shade: "#563219" },
+  stone: { base: "#9a9cab", shade: "#6b6d7c", light: "#c1c3cf" },
+  moss: { base: "#6fa04a", shade: "#4b7531", light: "#94c46a" },
+  copper: { base: "#d07a3e", shade: "#9a5226", light: "#efa06a" },
+  poison: { base: "#8fe05a", shade: "#4fa82e", light: "#d4ffb0" },
+  bone: { base: "#efe6d2", shade: "#c4b796", light: "#fffaf0" },
+  fur: { base: "#3b3352", shade: "#251f36", light: "#5a4f7a" },
+  thorn: { base: "#4f6b3a", shade: "#334827", light: "#6d8d50" },
+  darkLeather: { base: "#4a3a33", shade: "#30251f", light: "#62504a" },
 } as const satisfies Record<string, Tone>;
 
 export const FX = {
@@ -44,6 +52,9 @@ export const FX = {
   muzzle: "#ffb43a",
   muzzleHot: "#ff6a2a",
   swoosh: "rgba(255,255,255,0.75)",
+  poison: "#8fe05a",
+  fire: "#ff8a2a",
+  dust: "#c9b48a",
 } as const;
 
 export const ARENA = {

@@ -100,22 +100,22 @@ Ausholen vor dem Schlag ist möglich, weil der ganze Kampf vorab berechnet ist (
 
 ## 8. Einheiten-Briefings
 
-Status: ✅ als Figur umgesetzt · ⏳ noch Symbol
+Status: ✅ als Code-Figur umgesetzt (alle 12). Sprite-Sheets ersetzen sie später einzeln (§10).
 
 | Einheit | Status | Silhouette & Ausrüstung | Teamfarbe auf | Angriff |
 |---|---|---|---|---|
 | Koloss | ✅ Detail-Referenz | Breiter Ritter, Topfhelm mit Sehschlitz, riesiger Turmschild, Streitkolben | Federbusch, Schild, Tabard | Kolben weit über den Kopf, Schmetterschlag |
-| Bollwerk | ⏳ | Kleiner Steingolem mit Wehrturm auf dem Rücken, Fäuste wie Felsblöcke | Banner auf dem Turm | Beidhändiger Bodenstampfer (Schockwelle) |
-| Schildträger | ✅ | Kleiner Soldat, Nasenhelm, großer Rundschild, kurzer Speer | Schildfläche, Helmband | Speerstoß nach vorn |
-| Dornenwache | ⏳ | Gedrungener Wächter in Dornenrüstung, Stachelschild | Wappenrock, Schildmitte | Schildschlag, Dornen sprühen |
-| Scharfschütze | ⏳ | Schlanker Jäger mit langer Armbrust, Federhut, Monokel | Hut, Umhang | Zielen (Laser-Linie kurz), Schuss mit Rückstoß |
+| Bollwerk | ✅ | Kleiner Steingolem mit Wehrturm auf dem Rücken, Fäuste wie Felsblöcke | Banner auf dem Turm | Beidhändiger Bodenstampfer (Schockwelle) |
+| Schildträger | ✅ | Kleiner Soldat in gestepptem Gambeson, Kesselhut, großer Rundschild, kurzer Speer | Schildfläche, Helmband | Speerstoß nach vorn |
+| Dornenwache | ✅ | Gedrungener Wächter in Dornenrüstung, Stachelschild | Wappenrock, Schildmitte | Schildschlag, Dornen sprühen |
+| Scharfschütze | ✅ | Schlanker Jäger mit langer Armbrust, Federhut, Monokel | Hut, Umhang | Zielen (Laser-Linie kurz), Schuss mit Rückstoß |
 | Mörser | ✅ | Stämmiger Kanonier mit Brille und Bart neben Mörserrohr auf Holzgestell | Halstuch, Fahne am Gestell | Rohr ruckt zurück, Mündungsfeuer + Rauch, Granate im Bogen |
 | Bogenschützen | ✅ | Kapuzen-Schützen mit Langbogen, Köcher | Kapuze & Umhang | Sehne ziehen beim Ausholen, Pfeil fliegt |
-| Funkenwerfer | ⏳ | Kleine Alchemisten mit Tank auf dem Rücken und Düse | Schutzbrille, Tank-Streifen | Flammenstoß (Kegel) |
+| Funkenwerfer | ✅ | Kleine Alchemisten mit Tank auf dem Rücken und Düse | Schutzbrille, Tank-Streifen | Flammenstoß (Kegel) |
 | Klingenmeister | ✅ | Schlanker Schwertkämpfer, Maske, Haarknoten, langes Schwert | Schal (weht), Gürtel | Weiter Schwung mit weißem Schweif |
-| Wirbelklinge | ⏳ | Akrobat mit zwei Sichelklingen | Schärpe | Drehwirbel mit Kreis-Schweif |
-| Schattenrudel | ⏳ | Schattenwölfe mit glühenden Augen | Halsband | Sprung-Biss |
-| Giftmischer | ⏳ | Pestdoktor-Silhouette mit Schnabelmaske und Phiolen | Umhangsaum | Phiole werfen, grüne Pfütze |
+| Wirbelklinge | ✅ | Kapuzen-Akrobat mit Gesichtstuch und zwei Sichelklingen | Schärpe, Gesichtstuch | Ducken mit gekreuzten Klingen, dann Drehwirbel mit Ring-Schweif |
+| Schattenrudel | ✅ | Schattenwölfe mit glühenden Augen | Halsband | Sprung-Biss |
+| Giftmischer | ✅ | Pestdoktor-Silhouette mit Schnabelmaske und Phiolen | Mantelsaum, Revers, Hutband | Phiole über Kopf werfen, grüne Giftwolke |
 
 ## 9. Checkliste für eine neue Figur
 
@@ -126,3 +126,14 @@ Status: ✅ als Figur umgesetzt · ⏳ noch Symbol
 5. Auf 20 px Höhe noch erkennbar (Masse-Einheiten)?
 6. Porträt auf der Karte sieht gut aus?
 7. Status in Abschnitt 8 auf ✅ setzen.
+
+## 10. Echte Grafiken (Sprite-Sheets)
+
+Code-Figuren sind Platzhalter mit festem Mindest-Detailgrad. Echte Grafiken ersetzen sie **einzeln**:
+Bilder und Eintrag in `apps/client/public/sprites/` (Format: `public/sprites/README.md`). Eine Einheit mit Sheet
+wird daraus gezeichnet, alle anderen bleiben Code-Figuren. Für Sheets gelten dieselben Vorgaben:
+Teamfarben laut §2 (je Team ein Bild oder ein Bild für beide), Blick nach rechts, Fußpunkt angegeben,
+Animationen idle (Pflicht), walk, attack (Treffer bei ~1/3), hurt, death.
+
+### Flächentreffer nach Angreifer
+Feuer (Funkenwerfer) orange · Explosion (Mörser) orange mit Rauch · Gift (Giftmischer) grün · Steinstaub (Bollwerk, Dornenwache) beige · Wirbel (Wirbelklinge) weiß.

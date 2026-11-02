@@ -57,6 +57,8 @@ export interface HitView {
   fresh: number;
   /** Stable per hit, for deterministic particle patterns. */
   seed: number;
+  /** Attacker's unit type, so effects can match it (fire, poison, stone dust …). */
+  typeId: string;
 }
 
 export interface Playback {
@@ -105,7 +107,7 @@ export function createPlayback(log: BattleLog): Playback {
   const attacksBy = new Map<number, Attack[]>();
   const hurtBy = new Map<number, number[]>();
   const deaths: { id: number; t: number }[] = [];
-  const hits: { t: number; x: number; y: number; area: number }[] = [];
+  const hits: { t: number; x: number; y: number; area: number; typeId: string }[] = [];
   let suddenDeathTick = Infinity;
   let endTick = 0;
 
@@ -124,7 +126,7 @@ export function createPlayback(log: BattleLog): Playback {
         if (e.arrivesAt - e.t > 1) projectiles.push(e);
         break;
       case "hit":
-        hits.push({ t: e.t, x: e.x, y: e.y, area: e.area });
+        hits.push({ t: e.t, x: e.x, y: e.y, area: e.area, typeId: spawns.get(e.id)?.typeId ?? "" });
         for (let i = 0; i < e.damages.length; i += 2) {
           const id = e.damages[i]!;
           const next = (hp.get(id) ?? 0) - e.damages[i + 1]!;
@@ -297,7 +299,7 @@ export function createPlayback(log: BattleLog): Playback {
       hits.forEach((h, i) => {
         const age = tick - h.t;
         if (age < 0 || age > HIT_FADE_TICKS) return;
-        out.push({ x: h.x, y: h.y, area: h.area, fresh: 1 - age / HIT_FADE_TICKS, seed: i });
+        out.push({ x: h.x, y: h.y, area: h.area, fresh: 1 - age / HIT_FADE_TICKS, seed: i, typeId: h.typeId });
       });
       return out;
     },

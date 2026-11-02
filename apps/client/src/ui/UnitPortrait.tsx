@@ -5,10 +5,17 @@ import { UnitArt } from "./UnitArt";
 /** How far right of centre each character's drawing reaches (weapons, mortar), as a share of its height. */
 const SHIFT: Record<string, number> = {
   koloss: 0.12,
+  bollwerk: 0.02,
   schildtraeger: 0.15,
-  bogenschuetzen: 0.07,
+  dornenwache: 0.04,
+  scharfschuetze: 0.16,
   moerser: 0.18,
+  bogenschuetzen: 0.07,
+  funkenwerfer: 0.1,
   klingenmeister: 0.1,
+  wirbelklinge: 0,
+  schattenrudel: 0.04,
+  giftmischer: 0.08,
 };
 
 /** The unit's character in its idle pose (team blue), or its symbol if it has no character yet. Static: no animation loop. */

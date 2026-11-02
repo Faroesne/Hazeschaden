@@ -1,6 +1,6 @@
 import { BATTLE, UNITS, getUnitType } from "@hazeschaden/shared";
 import { unitSvg } from "../art/unitArt";
-import { drawCharacter, hasCharacter } from "./characters";
+import { animatesDeath, drawCharacter, hasCharacter } from "./characters";
 import { ARENA, FEET_OFFSET_PER_RADIUS, FX, OUTLINE, TEAM, charHeight as heightFor } from "./characters/style";
 import type { DyingView, HitView, Playback, ProjectileView, UnitView } from "./playback";
 
@@ -205,8 +205,8 @@ function drawDying(ctx: CanvasRenderingContext2D, u: DyingView, time: number): v
     ctx.save();
     ctx.globalAlpha = 1 - k;
     ctx.translate(u.x, feetY);
-    ctx.rotate(-u.facing * Math.min(1, k * 1.6) * 1.35);
-    drawCharacter(ctx, u.typeId, { time, walking: false, attack: null, hurt: k < 0.2 ? 1 : 0, team: u.side }, charHeight(u), u.facing);
+    if (!animatesDeath(u.typeId)) ctx.rotate(-u.facing * Math.min(1, k * 1.6) * 1.35);
+    drawCharacter(ctx, u.typeId, { time, walking: false, attack: null, hurt: k < 0.2 ? 1 : 0, team: u.side }, charHeight(u), u.facing, k);
     ctx.restore();
   } else {
     ctx.save();
@@ -231,20 +231,31 @@ function drawDying(ctx: CanvasRenderingContext2D, u: DyingView, time: number): v
   ctx.restore();
 }
 
-/** Area hit: a shockwave ring growing to the real radius, plus dust specks. */
+/** Colours of an area hit by attacker: ring, fill, particles. */
+const AREA_STYLE: Record<string, [string, string, string]> = {
+  funkenwerfer: [FX.fire, "rgba(255,120,40,0.25)", FX.muzzle],
+  moerser: [FX.muzzle, "rgba(255,150,60,0.22)", FX.smoke],
+  giftmischer: [FX.poison, "rgba(120,220,80,0.28)", "#c8ff9a"],
+  bollwerk: [FX.dust, "rgba(200,180,140,0.25)", "#9a9cab"],
+  dornenwache: [FX.dust, "rgba(120,160,80,0.22)", "#efe6d2"],
+  wirbelklinge: ["#ffffff", "rgba(255,255,255,0.15)", "#d9d4e3"],
+};
+
+/** Area hit: a shockwave ring growing to the real radius, plus particles in the attacker's colours. */
 function drawShockwave(ctx: CanvasRenderingContext2D, h: HitView): void {
   const k = 1 - h.fresh;
   const r = h.area * (0.35 + 0.65 * k);
+  const [ring, fill, specks] = AREA_STYLE[h.typeId] ?? [FX.shockwave, "rgba(255, 215, 106, 0.18)", FX.dust];
   ctx.save();
   ctx.globalAlpha = h.fresh;
-  ctx.fillStyle = "rgba(255, 215, 106, 0.18)";
+  ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.ellipse(h.x, h.y, r, r * 0.7, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = FX.shockwave;
+  ctx.strokeStyle = ring;
   ctx.lineWidth = 5;
   ctx.stroke();
-  ctx.fillStyle = "#c9b48a";
+  ctx.fillStyle = specks;
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2 + h.seed;
     ctx.beginPath();
