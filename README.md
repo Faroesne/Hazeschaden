@@ -38,7 +38,9 @@ Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-S
 
 - **Gegen Bot:** Deck aus 5 Einheiten wählen, der Bot bekommt ein Zufallsdeck und draftet gegen deine stärkste Rolle.
 - **2 Spieler, 1 Gerät:** Beide wählen ein Deck; vor jedem Pick kommt ein Übergabe-Bildschirm, damit der andere nicht mitliest.
-- Pro Pick 10 Sekunden, danach wird zufällig gewählt. Kämpfe lassen sich mit 1×/2×/4× abspielen oder überspringen.
+- Pro Pick 20 Sekunden, danach wird zufällig gewählt. Aufstiege sind eine der 3 Optionen im Angebot.
+- Nach jedem Pick zeigt das Feld kurz beide Armeen, die neuen Einheiten erscheinen animiert (antippen überspringt).
+- Kämpfe lassen sich mit 1×/2×/4× abspielen oder überspringen; die Kamera folgt den Einheiten.
 
 Auf dem Handy testen: `pnpm dev:lan` macht den Server im **Heimnetz** sichtbar (Adresse steht in der Konsole). Nur im eigenen WLAN nutzen.
 

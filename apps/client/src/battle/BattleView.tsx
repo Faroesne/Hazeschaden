@@ -1,7 +1,7 @@
 import { BATTLE } from "@hazeschaden/shared";
 import type { BattleLog } from "@hazeschaden/sim";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { drawBattle } from "./draw";
+import { boundsOf, drawBattle, fitCamera, type Camera } from "./draw";
 import { createPlayback } from "./playback";
 
 const MAX_FPS = 30;
@@ -23,6 +23,16 @@ export function BattleView({ log, onDone }: { log: BattleLog; onDone: () => void
     canvas.width = Math.round(BATTLE.fieldWidth * scale);
     canvas.height = Math.round(BATTLE.fieldHeight * scale);
     const ctx = canvas.getContext("2d")!;
+    // The camera follows the living units, eased so it glides instead of jumping.
+    let cam: Camera = fitCamera(boundsOf(pb.unitsAt(0)));
+    const follow = (tick: number, k: number) => {
+      const target = fitCamera(boundsOf(pb.unitsAt(tick)));
+      cam = {
+        x0: cam.x0 + (target.x0 - cam.x0) * k,
+        y0: cam.y0 + (target.y0 - cam.y0) * k,
+        zoom: cam.zoom + (target.zoom - cam.zoom) * k,
+      };
+    };
 
     let raf = 0;
     let last = performance.now();
@@ -33,10 +43,11 @@ export function BattleView({ log, onDone }: { log: BattleLog; onDone: () => void
       tickRef.current = Math.min(pb.endTick, tickRef.current + (dt / 1000) * BATTLE.ticksPerSecond * speedRef.current);
       if (now - lastDraw >= 1000 / MAX_FPS - 1) {
         lastDraw = now;
-        drawBattle(ctx, pb, tickRef.current, scale);
+        follow(tickRef.current, 0.08);
+        drawBattle(ctx, pb, tickRef.current, scale, cam);
       }
       if (tickRef.current >= pb.endTick) {
-        drawBattle(ctx, pb, pb.endTick, scale);
+        drawBattle(ctx, pb, pb.endTick, scale, cam);
         setDone(true);
         return;
       }

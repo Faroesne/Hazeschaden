@@ -120,10 +120,6 @@ h2 {
   color: var(--accent);
 }
 
-.chip.levelup {
-  border-color: var(--accent);
-}
-
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -174,9 +170,54 @@ h2 {
   border-radius: 12px;
   padding: 8px 10px;
   display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.unit-body {
+  display: flex;
   flex-direction: column;
   gap: 3px;
+  flex: 1;
   min-width: 0;
+}
+
+.unit-art {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.unit-art svg {
+  width: 100%;
+  height: 100%;
+}
+
+.role-tank .unit-art {
+  color: var(--tank);
+}
+.role-ranged .unit-art {
+  color: var(--ranged);
+}
+.role-assassin .unit-art {
+  color: var(--assassin);
+}
+
+.unit-card.levelup-card {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, #2a2412, var(--panel) 70%);
+}
+
+.unit-badge {
+  color: #1a1408;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .unit-card:disabled {
@@ -202,19 +243,6 @@ h2 {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.unit-icon {
-  font-size: 0.9rem;
-}
-.role-tank .unit-icon {
-  color: var(--tank);
-}
-.role-ranged .unit-icon {
-  color: var(--ranged);
-}
-.role-assassin .unit-icon {
-  color: var(--assassin);
 }
 
 .unit-name {
@@ -243,8 +271,24 @@ h2 {
 
 .unit-stats {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 2px 8px;
   font-size: 0.8rem;
+}
+
+.unit-stats span {
+  white-space: nowrap;
+}
+
+/* Deck grid: two narrow columns, picture above the text. */
+.unit-grid .unit-card {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unit-grid .unit-art {
+  width: 36px !important;
+  height: 36px !important;
 }
 
 .sticky-bottom {
@@ -343,8 +387,14 @@ h2 {
   border-radius: 8px;
   padding: 4px 8px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   font-size: 0.8rem;
+}
+
+.army-chip-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .army-chip.role-tank {
@@ -392,4 +442,48 @@ h2 {
 .final-armies {
   width: 100%;
   text-align: left;
+}
+
+/* Spawn preview */
+.spawn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.spawn-banners {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spawn-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 6px 10px;
+  border-left: 4px solid var(--line);
+  animation: banner-in 0.35s ease-out both;
+}
+
+.spawn-banner.side-0 {
+  border-left-color: var(--p0);
+}
+.spawn-banner.side-1 {
+  border-left-color: var(--p1);
+  animation-delay: 0.1s;
+}
+
+@keyframes banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.center-text {
+  text-align: center;
 }

@@ -14,9 +14,9 @@ Keine Story. Ranglistenfaktor > Inhalt.
 | Format | 1v1, synchron/live |
 | Herzen | 4 pro Spieler → 4 bis 7 Runden |
 | Picks pro Runde | 3, nacheinander |
-| Zeit pro Pick | 10 s, danach Zufalls-Pick |
-| Angebot pro Pick | 3 zufällige Einheitentypen aus dem eigenen Deck (Deck = 5 Typen) |
-| Alternative zum Pick | Einen bereits besessenen Typ um 1 Level aufsteigen (max. Level 3) |
+| Zeit pro Pick | 20 s, danach zufällige Wahl aus dem Angebot |
+| Angebot pro Pick | 3 Optionen für 3 verschiedene Einheitentypen aus dem eigenen Deck (Deck = 5 Typen). Eine Option ist entweder „neue Einheiten“ oder – für einen bereits besessenen Typ unter Level 3 – „Aufstieg um 1 Level“ |
+| Nach jedem Pick | Kurze Feld-Vorschau (~2 s, antippen überspringt): beide Armeen in Aufstellung, die neuen Einheiten beider Spieler erscheinen animiert, Aufstiege leuchten auf |
 | Armee | wächst dauerhaft; jede Runde voll geheilt |
 | Rundenverlierer | verliert 1 Herz |
 | Gleichzeitiger Tod beider Teams | beide verlieren 1 Herz |

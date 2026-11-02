@@ -1,4 +1,4 @@
-export { simulateBattle } from "./battle.js";
+export { previewDeployment, simulateBattle } from "./battle.js";
 export { Rng } from "./rng.js";
 export { checkGoals, counterPairs, duel, winMatrix } from "./balance.js";
 export type { DuelStats, EvalOptions, GoalCheck, GoalKind } from "./balance.js";

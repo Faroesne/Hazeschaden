@@ -4,7 +4,7 @@ export const RULES = {
   deckSize: 5,
   offerSize: 3,
   picksPerRound: 3,
-  pickSeconds: 10,
+  pickSeconds: 20,
   maxLevel: 3,
   reconnectSeconds: 60,
 } as const;

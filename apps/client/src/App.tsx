@@ -12,6 +12,7 @@ import type { BattleLog, BattleWinner } from "@hazeschaden/sim";
 import { RULES } from "@hazeschaden/shared";
 import { useState } from "react";
 import { BattleView } from "./battle/BattleView";
+import { SpawnPreview } from "./battle/SpawnPreview";
 import { ArmyList, DraftScreen } from "./screens/DraftScreen";
 import { SetupScreen, type Mode, type SetupResult } from "./screens/SetupScreen";
 import { Hearts } from "./ui/Hearts";
@@ -20,6 +21,7 @@ type View =
   | { kind: "setup" }
   | { kind: "handover"; player: PlayerId }
   | { kind: "draft"; player: PlayerId }
+  | { kind: "reveal"; match: MatchState; choices: [Choice, Choice] }
   | { kind: "battle"; log: BattleLog; winner: BattleWinner }
   | { kind: "roundResult"; winner: BattleWinner }
   | { kind: "finished" };
@@ -59,8 +61,16 @@ export function App() {
 
   const pick = (player: PlayerId, choice: Choice) => {
     if (!session) return;
+    const before = session.match.players[0].picks.length;
     let match = choose(session.match, player, choice);
     if (session.mode === "bot") match = choose(match, 1, botChoice(match, 1));
+    if (match.players[0].picks.length > before) {
+      // Both players have chosen: show the field with both new choices before moving on.
+      const last = (p: PlayerId) => match.players[p].picks[match.players[p].picks.length - 1]!.choice;
+      setSession((s) => (s ? { ...s, match } : s));
+      setView({ kind: "reveal", match, choices: [last(0), last(1)] });
+      return;
+    }
     advance(session.mode, match);
   };
 
@@ -89,6 +99,18 @@ export function App() {
           onChoose={(c) => pick(view.player, c)}
           onTimeout={() => pick(view.player, timeoutChoice(match, view.player))}
         />
+      );
+
+    case "reveal":
+      return (
+        <div className="screen">
+          <header className="draft-header">
+            <div className="round">
+              Runde {match.round} · Pick {view.match.players[0].picks.filter((p) => p.round === match.round).length}/{RULES.picksPerRound}
+            </div>
+          </header>
+          <SpawnPreview match={view.match} choices={view.choices} names={names} onDone={() => advance(session.mode, view.match)} />
+        </div>
       );
 
     case "battle":

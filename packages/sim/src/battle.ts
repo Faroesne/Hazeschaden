@@ -9,6 +9,7 @@ import type {
   BattleOptions,
   BattleResult,
   BattleWinner,
+  DeployedUnit,
   Side,
 } from "./types.js";
 
@@ -58,11 +59,7 @@ export function simulateBattle(input: BattleInput, options: BattleOptions = {}):
   };
 
   // --- Deploy -------------------------------------------------------------
-  const catalog = new Map((options.units ?? UNITS).map((u, i) => [u.id, { type: u, order: i }]));
-  const units: Unit[] = [];
-  for (const side of [0, 1] as const) {
-    deploy(side, input.armies[side], catalog, units, levelPct, rng);
-  }
+  const units = deployAll(input, options, levelPct, rng);
   teleportAssassins(units);
   for (const u of units) {
     emit({ t: 0, type: "spawn", id: u.id, side: u.side, typeId: u.type.id, level: u.level, x: u.x, y: u.y, hp: u.hp, radius: u.type.radius });
@@ -167,6 +164,31 @@ export function simulateBattle(input: BattleInput, options: BattleOptions = {}):
 }
 
 // --- Deployment ------------------------------------------------------------
+
+function deployAll(input: BattleInput, options: BattleOptions, levelPct: number, rng: Rng): Unit[] {
+  const catalog = new Map((options.units ?? UNITS).map((u, i) => [u.id, { type: u, order: i }]));
+  const units: Unit[] = [];
+  for (const side of [0, 1] as const) deploy(side, input.armies[side], catalog, units, levelPct, rng);
+  return units;
+}
+
+/**
+ * Both armies in formation as the battle would deploy them, before assassins teleport.
+ * Same ids, types, levels and HP as the battle's spawn events. For showing the field between picks.
+ */
+export function previewDeployment(input: BattleInput, options: BattleOptions = {}): DeployedUnit[] {
+  const levelPct = options.balance?.levelBonusPct ?? BALANCE.levelBonusPct;
+  return deployAll(input, options, levelPct, new Rng(input.seed)).map((u) => ({
+    id: u.id,
+    side: u.side,
+    typeId: u.type.id,
+    level: u.level,
+    x: u.x,
+    y: u.y,
+    hp: u.hp,
+    radius: u.type.radius,
+  }));
+}
 
 /** Row order from the front line backwards. Assassins stand behind the ranged row. */
 const ROW_ORDER = ["tank", "ranged", "assassin"] as const;

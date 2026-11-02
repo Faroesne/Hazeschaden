@@ -7,8 +7,8 @@
 | **Herz** | Leben eines Spielers im Match. Start: 4. |
 | **Deck** | 5 Einheitentypen, die ein Spieler vor dem Match auswählt. |
 | **Einheitentyp** | Eine Einheit aus dem Pool, z. B. „Bogenschützen“. |
-| **Angebot** | Die 3 zufälligen Einheitentypen aus dem eigenen Deck, die bei einem Pick zur Wahl stehen. |
-| **Pick** | Eine Entscheidung in der Draft-Phase: einen Typ aus dem Angebot nehmen oder einen Typ aufsteigen lassen. |
+| **Angebot** | Die 3 Optionen bei einem Pick, jede für einen anderen Einheitentyp aus dem eigenen Deck: neue Einheiten oder ein Aufstieg. |
+| **Pick** | Eine Entscheidung in der Draft-Phase: eine der 3 Optionen des Angebots wählen. |
 | **Trupp** | Die Einheiten, die ein Pick bringt (z. B. 5 Bogenschützen). |
 | **Level** | Stufe eines Einheitentyps (1–3), erhöht Leben und Schaden aller Einheiten des Typs. |
 | **Armee** | Alle Einheiten eines Spielers im Match; wächst mit jedem Pick. |
@@ -19,5 +19,6 @@
 | **Pick-Budget** | Kampfkraft eines Picks: `Anzahl² × Leben × DPS`. |
 | **Sudden Death** | Steigender Schaden für alle Einheiten ab 30 s Kampfzeit. |
 | **Tick** | Ein Simulationsschritt (20 pro Sekunde). |
+| **Feld-Vorschau** | Kurze Anzeige nach jedem Pick: beide Armeen in Aufstellung, neue Einheiten erscheinen animiert. |
 | **Ereignis-Protokoll** | Liste aller Kampfereignisse; Grundlage für Anzeige und Replays. |
 | **Trophäen** | Elo-Wertung eines Spielers, Start 1000. |

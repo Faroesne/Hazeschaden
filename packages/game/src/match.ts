@@ -21,8 +21,8 @@ export interface PlayerState {
   deck: readonly string[];
   hearts: number;
   army: readonly ArmyEntry[];
-  /** Unit types offered for the current pick. */
-  offer: readonly string[];
+  /** The RULES.offerSize choices for the current pick (new units or a level-up), each for a different unit type. */
+  offer: readonly Choice[];
   /** This pick's choice, hidden from the opponent until both have chosen. */
   pending: Choice | null;
   picks: readonly PickRecord[];
@@ -81,16 +81,31 @@ export function mixSeed(...parts: number[]): number {
   return h >>> 0;
 }
 
-/** RULES.offerSize distinct unit types from the deck, chosen by seed, round, pick and player. */
-export function makeOffer(deck: readonly string[], seed: number, round: number, pick: number, player: PlayerId): string[] {
+/**
+ * The choices for one pick: RULES.offerSize different unit types from the deck. A type the player
+ * already owns below the max level can also come up as a level-up instead of more units.
+ * Chosen by seed, round, pick and player.
+ */
+export function makeOffer(
+  deck: readonly string[],
+  army: readonly ArmyEntry[],
+  seed: number,
+  round: number,
+  pick: number,
+  player: PlayerId,
+): Choice[] {
   const rng = new Rng(mixSeed(seed, round, pick, player, 0x0ffe));
-  const pool = [...deck];
-  const offer: string[] = [];
+  const pool: Choice[] = deck.map((typeId) => ({ kind: "unit", typeId }));
+  for (const e of army) if (e.level < RULES.maxLevel) pool.push({ kind: "levelUp", typeId: e.typeId });
+  const offer: Choice[] = [];
   while (offer.length < RULES.offerSize && pool.length > 0) {
-    offer.push(pool.splice(rng.int(pool.length), 1)[0]!);
+    const c = pool.splice(rng.int(pool.length), 1)[0]!;
+    if (!offer.some((o) => o.typeId === c.typeId)) offer.push(c);
   }
   return offer;
 }
+
+const sameChoice = (a: Choice, b: Choice): boolean => a.kind === b.kind && a.typeId === b.typeId;
 
 export function createMatch(opts: { seed: number; decks: [readonly string[], readonly string[]] }): MatchState {
   opts.decks.forEach(validateDeck);
@@ -98,7 +113,7 @@ export function createMatch(opts: { seed: number; decks: [readonly string[], rea
     deck: [...opts.decks[id]],
     hearts: RULES.hearts,
     army: [],
-    offer: makeOffer(opts.decks[id], opts.seed, 1, 0, id),
+    offer: makeOffer(opts.decks[id], [], opts.seed, 1, 0, id),
     pending: null,
     picks: [],
   });
@@ -113,16 +128,11 @@ export function createMatch(opts: { seed: number; decks: [readonly string[], rea
   };
 }
 
-/** Unit types this player may level up right now. */
-export function levelUpOptions(state: MatchState, player: PlayerId): string[] {
-  return state.players[player].army.filter((e) => e.level < RULES.maxLevel).map((e) => e.typeId);
-}
-
 export function isValidChoice(state: MatchState, player: PlayerId, choice: Choice): boolean {
   if (state.phase !== "draft") return false;
   const p = state.players[player];
   if (p.pending) return false;
-  return choice.kind === "unit" ? p.offer.includes(choice.typeId) : levelUpOptions(state, player).includes(choice.typeId);
+  return p.offer.some((o) => sameChoice(o, choice));
 }
 
 function applyChoice(army: readonly ArmyEntry[], choice: Choice): ArmyEntry[] {
@@ -149,12 +159,13 @@ export function choose(state: MatchState, player: PlayerId, choice: Choice): Mat
   const draftDone = nextPick >= RULES.picksPerRound;
   const resolved = mapPlayers(players, (p, id) => {
     const c = p.pending!;
+    const army = applyChoice(p.army, c);
     return {
       ...p,
-      army: applyChoice(p.army, c),
+      army,
       picks: [...p.picks, { round: state.round, pick: state.pickIndex, choice: c }],
       pending: null,
-      offer: draftDone ? [] : makeOffer(p.deck, state.seed, state.round, nextPick, id),
+      offer: draftDone ? [] : makeOffer(p.deck, army, state.seed, state.round, nextPick, id),
     };
   });
 
@@ -166,11 +177,11 @@ export function choose(state: MatchState, player: PlayerId, choice: Choice): Mat
   };
 }
 
-/** A random valid unit pick, used when the pick timer runs out. Deterministic per pick. */
+/** A random choice from the offer, used when the pick timer runs out. Deterministic per pick. */
 export function timeoutChoice(state: MatchState, player: PlayerId): Choice {
   const offer = state.players[player].offer;
   const rng = new Rng(mixSeed(state.seed, state.round, state.pickIndex, player, 0x71e0));
-  return { kind: "unit", typeId: offer[rng.int(offer.length)]! };
+  return offer[rng.int(offer.length)]!;
 }
 
 /** The other player's picks visible to `viewer`: everything already resolved (never pending choices or offers). */
@@ -204,7 +215,7 @@ export function fightRound(state: MatchState): { state: MatchState; battle: Batt
   const players = mapPlayers(state.players, (p, id) => ({
     ...p,
     hearts: hearts[id],
-    offer: over ? [] : makeOffer(p.deck, state.seed, nextRound, 0, id),
+    offer: over ? [] : makeOffer(p.deck, p.army, state.seed, nextRound, 0, id),
   }));
 
   return {

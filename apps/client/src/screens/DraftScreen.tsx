@@ -1,10 +1,11 @@
-import { levelUpOptions, type Choice, type MatchState, type PlayerId } from "@hazeschaden/game";
+import type { Choice, MatchState, PlayerId } from "@hazeschaden/game";
 import { RULES, getUnitType } from "@hazeschaden/shared";
 import { useEffect, useRef, useState } from "react";
+import { UnitArt } from "../ui/UnitArt";
 import { UnitCard } from "../ui/UnitCard";
 import { Hearts } from "../ui/Hearts";
 
-/** One player's pick: offer, level-ups, both armies, and the pick timer. */
+/** One player's pick: the three choices, both armies, and the pick timer. */
 export function DraftScreen({
   match,
   player,
@@ -22,7 +23,6 @@ export function DraftScreen({
   const opp: PlayerId = player === 0 ? 1 : 0;
   const them = match.players[opp];
   const remaining = useCountdown(RULES.pickSeconds, `${match.round}-${match.pickIndex}-${player}`, onTimeout);
-  const levelUps = levelUpOptions(match, player);
   const lastOppPick = them.picks[them.picks.length - 1];
 
   return (
@@ -53,27 +53,17 @@ export function DraftScreen({
       <section>
         <h2>Dein Angebot</h2>
         <div className="offer">
-          {me.offer.map((id) => (
-            <UnitCard key={id} typeId={id} owned={ownedLabel(me.army, id)} onClick={() => onChoose({ kind: "unit", typeId: id })} />
+          {me.offer.map((c) => (
+            <UnitCard
+              key={`${c.kind}-${c.typeId}`}
+              typeId={c.typeId}
+              owned={ownedLabel(me.army, c.typeId)}
+              levelUp={c.kind === "levelUp" ? { from: me.army.find((e) => e.typeId === c.typeId)!.level } : undefined}
+              onClick={() => onChoose(c)}
+            />
           ))}
         </div>
       </section>
-
-      {levelUps.length > 0 && (
-        <section>
-          <h2>Oder aufsteigen lassen</h2>
-          <div className="chips">
-            {levelUps.map((id) => {
-              const e = me.army.find((a) => a.typeId === id)!;
-              return (
-                <button key={id} className="chip levelup" onClick={() => onChoose({ kind: "levelUp", typeId: id })}>
-                  ⬆ {getUnitType(id).name} Lv{e.level}→{e.level + 1}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       <section>
         <h2>Deine Armee</h2>
@@ -96,10 +86,13 @@ export function ArmyList({ army, highlight, empty }: { army: MatchState["players
         const u = getUnitType(e.typeId);
         return (
           <div key={e.typeId} className={`army-chip role-${u.role}${highlight === e.typeId ? " highlight" : ""}`}>
-            <span>{u.name}</span>
-            <span className="muted">
-              {u.count * e.picks} Einh. · Lv{e.level}
-            </span>
+            <UnitArt typeId={e.typeId} size={24} />
+            <div className="army-chip-text">
+              <span>{u.name}</span>
+              <span className="muted">
+                {u.count * e.picks} Einh. · Lv{e.level}
+              </span>
+            </div>
           </div>
         );
       })}

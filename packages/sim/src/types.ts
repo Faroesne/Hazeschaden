@@ -59,3 +59,15 @@ export interface BattleResult {
   remainingHp: [number, number];
   log?: BattleLog;
 }
+
+/** A unit in its starting position. */
+export interface DeployedUnit {
+  id: number;
+  side: Side;
+  typeId: string;
+  level: number;
+  x: number;
+  y: number;
+  hp: number;
+  radius: number;
+}

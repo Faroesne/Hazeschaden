@@ -1,6 +1,6 @@
 import { COUNTERS, RULES, UNITS, getUnitType, type Role } from "@hazeschaden/shared";
 import { Rng } from "@hazeschaden/sim";
-import { levelUpOptions, mixSeed, type Choice, type MatchState, type PlayerId } from "./match.js";
+import { mixSeed, type Choice, type MatchState, type PlayerId } from "./match.js";
 
 const ROLES: readonly Role[] = ["tank", "ranged", "assassin"];
 
@@ -31,8 +31,8 @@ function roleWeights(state: MatchState, player: PlayerId): Record<Role, number> 
 }
 
 /**
- * Simple counter-drafting bot: looks at the opponent's strongest role and picks (or levels up)
- * the role that counters it; avoids the role it is countered by. Deterministic.
+ * Simple counter-drafting bot: looks at the opponent's strongest role and takes an offered choice
+ * (units or level-up) of the role that counters it; avoids the role it is countered by. Deterministic.
  */
 export function botChoice(state: MatchState, player: PlayerId): Choice {
   const me = state.players[player];
@@ -40,19 +40,20 @@ export function botChoice(state: MatchState, player: PlayerId): Choice {
   const weights = roleWeights(state, opponent);
   const dominant = ROLES.reduce<Role | null>((best, r) => (weights[r] > 0 && (best === null || weights[r] > weights[best]) ? r : best), null);
 
-  const roleOf = (id: string): Role => getUnitType(id).role;
-  const owned = (id: string): boolean => me.army.some((e) => e.typeId === id);
+  const roleOf = (c: Choice): Role => getUnitType(c.typeId).role;
+  const owned = (c: Choice): boolean => me.army.some((e) => e.typeId === c.typeId);
 
   if (dominant) {
     const want = ROLES.find((r) => COUNTERS[r] === dominant)!;
     const avoid = COUNTERS[dominant];
-    const wanted = me.offer.filter((id) => roleOf(id) === want);
-    if (wanted.length > 0) return { kind: "unit", typeId: wanted.find(owned) ?? wanted[0]! };
-    const lvl = levelUpOptions(state, player).find((id) => roleOf(id) === want);
-    if (lvl) return { kind: "levelUp", typeId: lvl };
-    const safe = me.offer.filter((id) => roleOf(id) !== avoid);
-    if (safe.length > 0) return { kind: "unit", typeId: safe[0]! };
+    const wanted = me.offer.filter((c) => roleOf(c) === want);
+    if (wanted.length > 0) {
+      // More units before levels; stack types already owned.
+      return wanted.find((c) => c.kind === "unit" && owned(c)) ?? wanted.find((c) => c.kind === "unit") ?? wanted[0]!;
+    }
+    const safe = me.offer.filter((c) => roleOf(c) !== avoid);
+    if (safe.length > 0) return safe[0]!;
   }
   const rng = new Rng(mixSeed(state.seed, state.round, state.pickIndex, player, 0xb07));
-  return { kind: "unit", typeId: me.offer[rng.int(me.offer.length)]! };
+  return me.offer[rng.int(me.offer.length)]!;
 }
