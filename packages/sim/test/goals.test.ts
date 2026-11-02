@@ -9,6 +9,21 @@ describe("checkGoals", () => {
     expect(checks.filter((c) => c.kind === "1v1")).toHaveLength(48);
   });
 
+  it("only asks for a majority when the form works against the expected winner", () => {
+    const checks = checkGoals(1);
+    const find = (kind: string, winner: string, opponent: string) =>
+      checks.find((c) => c.kind === kind && c.expectedWinner === winner && c.opponent === opponent)!;
+
+    // Mortar (area) vs. Koloss (elite): elite counters area → conflict.
+    expect(find("1v1", "moerser", "koloss").requiredWinPct).toBe(60);
+    // Sniper (single) vs. shield bearers (mass): mass counters single target → conflict.
+    expect(find("1v1", "scharfschuetze", "schildtraeger").requiredWinPct).toBe(60);
+    // Blade master (single) vs. sniper (elite): no form advantage for the sniper → always.
+    expect(find("1v1", "klingenmeister", "scharfschuetze").requiredWinPct).toBe(100);
+    // 2v1: archers (mass) vs. blade master (single) → form helps the expected winner → always.
+    expect(find("2v1", "bogenschuetzen", "klingenmeister").requiredWinPct).toBe(100);
+  });
+
   it("passes more 1v1 goals when the counter bonus is overwhelming", () => {
     const failed1v1 = (counterBonusPct: number): number =>
       checkGoals(2, { balance: { counterBonusPct } }).filter((c) => c.kind === "1v1" && !c.passed).length;

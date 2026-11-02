@@ -4,7 +4,7 @@
     "damage": 33
   },
   "bollwerk": {
-    "hp": 1800,
+    "hp": 1728,
     "damage": 40
   },
   "schildtraeger": {
@@ -21,7 +21,7 @@
   },
   "moerser": {
     "hp": 245,
-    "damage": 214
+    "damage": 222
   },
   "bogenschuetzen": {
     "hp": 170,

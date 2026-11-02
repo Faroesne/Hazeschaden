@@ -81,6 +81,7 @@ Das sind die Design-Startwerte (`BASE_UNITS`). Gespielt wird mit `UNITS` = Start
 - **Ende:** Seite ohne lebende Einheiten verliert. Beide gleichzeitig → beide verlieren ein Herz.
 
 ### Balance-Ziele (automatische Tests)
+- „Immer“ heißt 100 % der Spiele. **Ausnahme:** Arbeitet die Form gegen den erwarteten Sieger (der Gegner hat die passende Form gegen seine Schadensart, er selbst nicht umgekehrt), reichen **≥ 60 %**.
 - 1 Pick gegen 1 Pick: der Rollen-Konter gewinnt **immer**.
 - 2 Picks gegen 1 Pick des Konters: der Konter **verliert**.
 - Ein Level zählt dabei wie ein Pick.

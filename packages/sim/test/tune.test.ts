@@ -24,6 +24,33 @@ describe("tuneUnits", () => {
     expect(units.map((u) => u.id)).toEqual(unbalanced.map((u) => u.id));
   });
 
+  it("judges goals exactly like checkGoals, including majority-only conflict goals", () => {
+    // Mortar (area) vs. Koloss (elite) is a role-vs-form conflict.
+    const withConflict: UnitType[] = [getUnitType("koloss"), getUnitType("moerser"), getUnitType("klingenmeister")];
+    const { units, report } = tuneUnits(withConflict, { seeds: 4, maxPasses: 4 });
+
+    const key = (c: { kind: string; expectedWinner: string; opponent: string }) =>
+      `${c.kind} ${c.expectedWinner}>${c.opponent}`;
+    const expected = checkGoals(4, { units }).filter((c) => !c.passed).map(key);
+    expect(report.failures.map(key)).toEqual(expected);
+    expect(report.passed).toBe(expected.length === 0);
+  });
+
+  it("leaves a catalog alone when a conflict goal already has its majority", () => {
+    // Found by search: mortar wins 7/8 against Koloss (conflict goal, 60% needed); all else passes.
+    const almost: UnitType[] = [
+      getUnitType("koloss"),
+      { ...getUnitType("moerser"), hp: 250, damage: 350 },
+      getUnitType("klingenmeister"),
+    ];
+    expect(checkGoals(4, { units: almost }).every((c) => c.passed)).toBe(true);
+
+    const { units, report } = tuneUnits(almost, { seeds: 4 });
+
+    expect(report.passed).toBe(true);
+    expect(units).toEqual(almost);
+  });
+
   it("is deterministic", () => {
     const a = tuneUnits(unbalanced, { seeds: 2 });
     const b = tuneUnits(unbalanced, { seeds: 2 });

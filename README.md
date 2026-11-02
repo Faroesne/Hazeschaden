@@ -8,7 +8,7 @@ Kompetitiver 1v1-Autobattler als Web-App. Spezifikation: [docs/SPEC.md](docs/SPE
 |---|---|
 | `packages/shared` – Regeln, Balance-Werte, 12 Einheiten | fertig (Startwerte) |
 | `packages/sim` – deterministische Kampfsimulation + Ereignis-Protokoll | fertig |
-| Balance-Runner (`pnpm balance`) + Tuner (`pnpm balance --tune`) | fertig – 132 von 144 Balance-Zielen erfüllt (offene Entscheidung, siehe unten) |
+| Balance-Runner (`pnpm balance`) + Tuner (`pnpm balance --tune`) | fertig – 136 von 144 Balance-Zielen erfüllt (offen, siehe unten) |
 | `apps/server` (Colyseus, API, Postgres) | geplant |
 | `apps/client` (React, PixiJS, PWA) | geplant |
 
@@ -31,9 +31,11 @@ pnpm balance --tune                # Leben/Schaden pro Einheit tunen → package
 
 Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-Startwerte, `tuning.json` überschreibt Leben und Schaden. Das Spiel nutzt `UNITS` (Startwerte + Tuning). Der Tuner bleibt im Bereich 25–400 % der Startwerte.
 
-## Offene Entscheidung: Rolle gegen Form
+## Offen: Flächenschaden gegen Masse
 
-Nach dem Tuning scheitern noch 12 von 144 Zielen, alle in Fällen, in denen Rolle und Form sich widersprechen (z. B. Mörser mit Flächenschaden gegen Klasse-Tanks). Die Form wirkt mechanisch stärker als „Rolle gewinnt knapp“ erlaubt, und reines Tunen von Leben/Schaden löst das nicht. Der Abnahmetest `packages/sim/test/acceptance.test.ts` ist deshalb vorerst übersprungen.
+Regel seit 2026-11-02: Arbeitet die Form gegen den erwarteten Sieger, muss er nur in ≥ 60 % der Spiele gewinnen, sonst immer (`GOALS.conflictMinWinPct`).
+
+Nach dem Tuning scheitern noch 8 von 144 Zielen, fast alle rund um Mörser und Bollwerk: Ein Flächentreffer löscht eng stehende Masse-Einheiten fast komplett aus. Ein Kampf geht zudem bei fast allen Seeds gleich aus, deshalb lockert die 60-%-Regel in der Praxis kaum etwas. Der Abnahmetest `packages/sim/test/acceptance.test.ts` ist deshalb vorerst übersprungen.
 
 ## Aufbau
 

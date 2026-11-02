@@ -1,4 +1,4 @@
-import { COUNTERS, UNITS, type UnitType } from "@hazeschaden/shared";
+import { COUNTERS, GOALS, UNITS, type UnitType } from "@hazeschaden/shared";
 import { simulateBattle } from "./battle.js";
 import type { ArmyEntry, BalanceOverrides } from "./types.js";
 
@@ -55,7 +55,31 @@ export interface GoalCheck {
   expectedWinner: string;
   opponent: string;
   stats: DuelStats;
+  /** Win rate the expected winner needs: 100, or GOALS.conflictMinWinPct when the form works against it. */
+  requiredWinPct: number;
   passed: boolean;
+}
+
+/** Mass counters single-target damage; elite counters area damage. */
+function formCounters(defender: UnitType, attacker: UnitType): boolean {
+  return defender.form === "mass" ? attacker.damageKind === "single" : attacker.damageKind === "area";
+}
+
+/**
+ * The form works against the expected winner when the opponent's form counters the winner's
+ * damage and the winner's form does not counter the opponent's damage in return.
+ */
+export function formWorksAgainst(winner: UnitType, opponent: UnitType): boolean {
+  return formCounters(opponent, winner) && !formCounters(winner, opponent);
+}
+
+export function requiredWinPct(winner: UnitType, opponent: UnitType): number {
+  return formWorksAgainst(winner, opponent) ? GOALS.conflictMinWinPct : 100;
+}
+
+/** Whether `stats` meet a required win rate (in percent). */
+export function meetsWinPct(stats: DuelStats, pct: number): boolean {
+  return stats.wins * 100 >= stats.games * pct;
 }
 
 const one = (typeId: string): ArmyEntry[] => [{ typeId, picks: 1, level: 1 }];
@@ -70,21 +94,22 @@ export function counterPairs(units: readonly UnitType[] = UNITS): [UnitType, Uni
 }
 
 /**
- * Balance goals from docs/SPEC.md §4:
+ * Balance goals from docs/SPEC.md §4 ("always" drops to GOALS.conflictMinWinPct when the form
+ * works against the expected winner, see `formWorksAgainst`):
  * - 1 pick vs 1 pick: the counter always wins.
  * - 2 picks vs 1 pick of the counter: the counter loses.
  * - a level counts like a pick: level 2 vs the counter at level 1, the counter loses.
  */
 export function checkGoals(seeds: number, opts: EvalOptions = {}): GoalCheck[] {
   const checks: GoalCheck[] = [];
-  const all = (stats: DuelStats): boolean => stats.wins === stats.games;
+  const check = (kind: GoalKind, winner: UnitType, opponent: UnitType, stats: DuelStats): GoalCheck => {
+    const pct = requiredWinPct(winner, opponent);
+    return { kind, expectedWinner: winner.id, opponent: opponent.id, stats, requiredWinPct: pct, passed: meetsWinPct(stats, pct) };
+  };
   for (const [c, v] of counterPairs(opts.units ?? UNITS)) {
-    const s1 = duel(one(c.id), one(v.id), seeds, opts);
-    checks.push({ kind: "1v1", expectedWinner: c.id, opponent: v.id, stats: s1, passed: all(s1) });
-    const s2 = duel(two(v.id), one(c.id), seeds, opts);
-    checks.push({ kind: "2v1", expectedWinner: v.id, opponent: c.id, stats: s2, passed: all(s2) });
-    const s3 = duel(lvl2(v.id), one(c.id), seeds, opts);
-    checks.push({ kind: "lvl2v1", expectedWinner: v.id, opponent: c.id, stats: s3, passed: all(s3) });
+    checks.push(check("1v1", c, v, duel(one(c.id), one(v.id), seeds, opts)));
+    checks.push(check("2v1", v, c, duel(two(v.id), one(c.id), seeds, opts)));
+    checks.push(check("lvl2v1", v, c, duel(lvl2(v.id), one(c.id), seeds, opts)));
   }
   return checks;
 }

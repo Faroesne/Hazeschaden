@@ -1,5 +1,5 @@
 import { BALANCE, type UnitType } from "@hazeschaden/shared";
-import { counterPairs, type DuelStats, type GoalCheck, type GoalKind } from "./balance.js";
+import { counterPairs, requiredWinPct, type DuelStats, type GoalCheck, type GoalKind } from "./balance.js";
 import { simulateBattle } from "./battle.js";
 import { idiv, withPct } from "./math.js";
 import type { ArmyEntry, BalanceOverrides } from "./types.js";
@@ -31,6 +31,7 @@ interface CheckSpec {
   opponentId: string;
   winnerArmy: ArmyEntry[];
   opponentArmy: ArmyEntry[];
+  requiredWinPct: number;
 }
 
 /** (hp, damage) directions tried per unit. */
@@ -41,11 +42,20 @@ const STEPS_PCT = [50, 25, 10, 4, 2] as const;
 
 function specsFor(units: readonly UnitType[]): CheckSpec[] {
   const army = (id: string, picks: number, level: number): ArmyEntry[] => [{ typeId: id, picks, level }];
+  const spec = (kind: GoalKind, w: UnitType, o: UnitType, winnerArmy: ArmyEntry[]): CheckSpec => ({
+    key: `${kind}|${w.id}|${o.id}`,
+    kind,
+    winnerId: w.id,
+    opponentId: o.id,
+    winnerArmy,
+    opponentArmy: army(o.id, 1, 1),
+    requiredWinPct: requiredWinPct(w, o),
+  });
   const specs: CheckSpec[] = [];
   for (const [c, v] of counterPairs(units)) {
-    specs.push({ key: `1v1|${c.id}|${v.id}`, kind: "1v1", winnerId: c.id, opponentId: v.id, winnerArmy: army(c.id, 1, 1), opponentArmy: army(v.id, 1, 1) });
-    specs.push({ key: `2v1|${v.id}|${c.id}`, kind: "2v1", winnerId: v.id, opponentId: c.id, winnerArmy: army(v.id, 2, 1), opponentArmy: army(c.id, 1, 1) });
-    specs.push({ key: `lvl2v1|${v.id}|${c.id}`, kind: "lvl2v1", winnerId: v.id, opponentId: c.id, winnerArmy: army(v.id, 1, 2), opponentArmy: army(c.id, 1, 1) });
+    specs.push(spec("1v1", c, v, army(c.id, 1, 1)));
+    specs.push(spec("2v1", v, c, army(v.id, 2, 1)));
+    specs.push(spec("lvl2v1", v, c, army(v.id, 1, 2)));
   }
   return specs;
 }
@@ -53,8 +63,9 @@ function specsFor(units: readonly UnitType[]): CheckSpec[] {
 interface Evaluation {
   stats: DuelStats;
   /**
-   * 0 when the expected winner won every game. Each lost game costs 1000 plus up to 1000 more
-   * for how much HP the opponent kept, so the tuner also sees progress on games still lost.
+   * 0 when the expected winner reached its required win rate. Otherwise each missing win costs
+   * 1000 plus up to 1000 more for how much HP the opponent kept (cheapest losses counted first),
+   * so the tuner also sees progress on games still lost.
    */
   penalty: number;
 }
@@ -96,7 +107,7 @@ export function tuneUnits(
 
   const evaluate = (spec: CheckSpec, catalog: readonly UnitType[]): Evaluation => {
     const stats: DuelStats = { wins: 0, losses: 0, draws: 0, games: 0 };
-    let penalty = 0;
+    const lossCosts: number[] = [];
     const opponentHp = armyHp(spec.opponentArmy, catalog, levelPct);
     for (let s = 1; s <= seeds; s++) {
       for (const wSide of [0, 1] as const) {
@@ -110,9 +121,13 @@ export function tuneUnits(
         if (r.winner === "draw") stats.draws++;
         else stats.losses++;
         const kept = r.remainingHp[wSide === 0 ? 1 : 0];
-        penalty += 1000 + Math.min(1000, idiv(1000 * kept, opponentHp));
+        lossCosts.push(1000 + Math.min(1000, idiv(1000 * kept, opponentHp)));
       }
     }
+    const requiredWins = Math.ceil((stats.games * spec.requiredWinPct) / 100);
+    const missing = Math.max(0, requiredWins - stats.wins);
+    lossCosts.sort((a, b) => a - b);
+    const penalty = lossCosts.slice(0, missing).reduce((sum, c) => sum + c, 0);
     return { stats, penalty };
   };
 
@@ -161,6 +176,7 @@ export function tuneUnits(
       expectedWinner: s.winnerId,
       opponent: s.opponentId,
       stats: results.get(s.key)!.stats,
+      requiredWinPct: s.requiredWinPct,
       passed: false,
     }));
 

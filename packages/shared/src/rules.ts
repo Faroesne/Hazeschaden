@@ -20,6 +20,15 @@ export const BALANCE = {
   levelBonusPct: 100,
 } as const;
 
+/** Balance goals checked by the balance runner. See docs/SPEC.md §3 and §4. */
+export const GOALS = {
+  /**
+   * Minimum win rate of the expected winner when the form works against it
+   * (the opponent's form counters the winner's damage kind). Otherwise it must win always.
+   */
+  conflictMinWinPct: 60,
+} as const;
+
 /** Battle simulation constants. See docs/SPEC.md §4. */
 export const BATTLE = {
   ticksPerSecond: 20,
