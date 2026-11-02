@@ -40,7 +40,15 @@ interface Hit {
 const W = BATTLE.fieldWidth;
 const H = BATTLE.fieldHeight;
 const CENTER_Y = idiv(H, 2);
-const EDGE = 8;
+/** Keeps a whole token inside the arena walls. */
+function clampX(x: number, r: number): number {
+  return clamp(x, r, W - r);
+}
+function clampY(y: number, r: number): number {
+  return clamp(y, r, H - r);
+}
+/** Free space between neighbouring tokens in a formation row. */
+const ROW_SPACING_GAP = 8;
 
 /**
  * Runs one battle to the end. Pure and deterministic: the same input always gives the same result.
@@ -138,7 +146,7 @@ export function simulateBattle(input: BattleInput, options: BattleOptions = {}):
       }
 
       // 6. Keep units from stacking.
-      separate(units);
+      for (let pass = 0; pass < SEPARATION_PASSES; pass++) separate(units);
 
       if (record && t % BATTLE.frameInterval === 0) frames.push(snapshot(t, units));
     }
@@ -192,8 +200,8 @@ export function previewDeployment(input: BattleInput, options: BattleOptions = {
 
 /** Row order from the front line backwards. Assassins stand behind the ranged row. */
 const ROW_ORDER = ["tank", "ranged", "assassin"] as const;
-const ROW_GAP = 60;
-const FRONT_DEPTH = 120;
+const ROW_GAP = 30;
+const FRONT_DEPTH = 70;
 
 type Catalog = ReadonlyMap<string, { type: UnitType; order: number }>;
 
@@ -226,8 +234,10 @@ function deploy(
     }
     if (roleUnits.length === 0) continue;
 
-    const spacing = Math.max(...roleUnits.map((u) => u.type.radius)) * 2 + 6;
-    const perLine = Math.max(1, idiv(W - 2 * EDGE, spacing));
+    const maxR = Math.max(...roleUnits.map((u) => u.type.radius));
+    const spacing = maxR * 2 + ROW_SPACING_GAP;
+    // Too many for one row: the rest forms the next row behind it.
+    const perLine = Math.max(1, idiv(W - 2 * maxR, spacing) + 1);
     for (let start = 0; start < roleUnits.length; start += perLine) {
       const line = roleUnits.slice(start, start + perLine);
       const firstX = idiv(W, 2) - idiv((line.length - 1) * spacing, 2);
@@ -239,8 +249,8 @@ function deploy(
           side,
           type: spec.type,
           level: spec.level,
-          x: clamp(firstX + i * spacing, EDGE, W - EDGE),
-          y: clamp(y, EDGE, H - EDGE),
+          x: clampX(firstX + i * spacing, spec.type.radius),
+          y: clampY(y, spec.type.radius),
           hp: maxHp,
           maxHp,
           damage: withPct(spec.type.damage, (spec.level - 1) * levelPct),
@@ -275,16 +285,17 @@ function teleportAssassins(units: Unit[]): void {
   for (const side of [0, 1] as const) {
     const mine = plans.filter((p) => p.u.side === side);
     if (mine.length === 0) continue;
-    const spacing = Math.max(...mine.map((p) => p.u.type.radius)) * 2 + 6;
-    const perLine = Math.max(1, idiv(W - 2 * EDGE, spacing));
+    const maxR = Math.max(...mine.map((p) => p.u.type.radius));
+    const spacing = maxR * 2 + ROW_SPACING_GAP;
+    const perLine = Math.max(1, idiv(W - 2 * maxR, spacing) + 1);
     mine.forEach((p, i) => {
       const lineIdx = idiv(i, perLine);
       const inLine = i % perLine;
       const lineCount = Math.min(perLine, mine.length - lineIdx * perLine);
       const firstX = idiv(W, 2) - idiv((lineCount - 1) * spacing, 2);
       const away = side === 0 ? -1 : 1; // further behind the enemy line
-      p.u.x = clamp(firstX + inLine * spacing, EDGE, W - EDGE);
-      p.u.y = clamp(p.y + away * lineIdx * spacing, EDGE, H - EDGE);
+      p.u.x = clampX(firstX + inLine * spacing, p.u.type.radius);
+      p.u.y = clampY(p.y + away * lineIdx * spacing, p.u.type.radius);
     });
   }
 }
@@ -427,11 +438,13 @@ function moveToward(u: Unit, target: Unit): void {
     if (Math.abs(dx) >= Math.abs(dy)) mx = Math.sign(dx);
     else my = Math.sign(dy);
   }
-  u.x = clamp(u.x + mx, EDGE, W - EDGE);
-  u.y = clamp(u.y + my, EDGE, H - EDGE);
+  u.x = clampX(u.x + mx, u.type.radius);
+  u.y = clampY(u.y + my, u.type.radius);
 }
 
-const MAX_RADIUS_SUM = 32;
+const MAX_RADIUS_SUM = 48;
+/** Push-apart passes per tick; more passes keep crowds from melting into each other. */
+const SEPARATION_PASSES = 2;
 
 /** Sweep-and-prune separation: overlapping units push each other apart. */
 function separate(units: Unit[]): void {
@@ -460,10 +473,10 @@ function separate(units: Unit[]): void {
         if (Math.abs(dx) >= Math.abs(dy)) px = dx >= 0 ? 1 : -1;
         else py = dy >= 0 ? 1 : -1;
       }
-      a.x = clamp(a.x - px, EDGE, W - EDGE);
-      a.y = clamp(a.y - py, EDGE, H - EDGE);
-      b.x = clamp(b.x + px, EDGE, W - EDGE);
-      b.y = clamp(b.y + py, EDGE, H - EDGE);
+      a.x = clampX(a.x - px, a.type.radius);
+      a.y = clampY(a.y - py, a.type.radius);
+      b.x = clampX(b.x + px, b.type.radius);
+      b.y = clampY(b.y + py, b.type.radius);
     }
   }
 }

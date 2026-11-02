@@ -3,7 +3,7 @@ import { BATTLE, getUnitType } from "@hazeschaden/shared";
 import { previewDeployment } from "@hazeschaden/sim";
 import { useEffect, useMemo, useRef } from "react";
 import { UnitArt } from "../ui/UnitArt";
-import { boundsOf, drawField, drawUnit, fitCamera } from "./draw";
+import { drawField, drawUnit } from "./draw";
 import type { UnitView } from "./playback";
 
 const DURATION_MS = 2200;
@@ -64,7 +64,6 @@ export function SpawnPreview({
     canvas.width = Math.round(BATTLE.fieldWidth * scale);
     canvas.height = Math.round(BATTLE.fieldHeight * scale);
     const ctx = canvas.getContext("2d")!;
-    const cam = fitCamera(boundsOf(units));
     const start = performance.now();
     let lastDraw = 0;
     let raf = 0;
@@ -73,7 +72,7 @@ export function SpawnPreview({
       const t = now - start;
       if (now - lastDraw >= 1000 / MAX_FPS - 1) {
         lastDraw = now;
-        drawField(ctx, scale, cam);
+        drawField(ctx, scale);
         const k = Math.min(1, Math.max(0, (t - GROW_FROM) / GROW_MS));
         const pulse = 0.5 + 0.5 * Math.sin(t / 120);
         for (const u of units) {
@@ -99,7 +98,7 @@ export function SpawnPreview({
           <ChoiceBanner key={side} name={names[side]!} choice={choices[side]!} side={side as 0 | 1} match={match} />
         ))}
       </div>
-      <canvas ref={canvasRef} className="battle-canvas" />
+      <canvas ref={canvasRef} className="battle-canvas" style={{ aspectRatio: `${BATTLE.fieldWidth} / ${BATTLE.fieldHeight}` }} />
       <div className="muted small center-text">Tippen zum Überspringen</div>
     </div>
   );

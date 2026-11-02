@@ -68,8 +68,10 @@ Das sind die Design-Startwerte (`BASE_UNITS`). Gespielt wird mit `UNITS` = Start
 
 ## 4. Kampf
 
-- **Freie Fläche**, Koordinaten in Ganzzahlen. Jede Seite hat eine Hälfte des Feldes.
-- **Aufstellung** komplett automatisch und deterministisch: Tanks vorne, Fernkampf und Assassinen hinten. Gleiche Armee → gleiche Positionen.
+- **Arena** (640 × 960, Ganzzahl-Koordinaten) mit Wänden: Keine Einheit verlässt sie, jede Marke bleibt ganz innerhalb. Jede Seite hat eine Hälfte.
+- **Aufstellung** komplett automatisch und deterministisch: Tanks vorne, Fernkampf und Assassinen hinten. Gleiche Armee → gleiche Positionen. Passen nicht alle Einheiten einer Rolle in eine Reihe, bilden die übrigen die nächste Reihe dahinter.
+- **Abstand:** Einheiten überlappen nicht (Kollisionsradius = gezeichnete Größe; Klasse 24, Masse 17 bzw. 13), auch im Gedränge nicht.
+- **Tempo:** ruhig – langsam 40, mittel 60, schnell 80 Arena-Einheiten pro Sekunde; Geschosse 400/s.
 - **Assassinen** teleportieren sich zu Kampfbeginn hinter die hinterste gegnerische Reihe.
 - **Zielwahl:**
   1. Standard: nächster lebender Gegner (Gleichstand → feste ID-Reihenfolge).

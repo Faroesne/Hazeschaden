@@ -8,7 +8,7 @@ Kompetitiver 1v1-Autobattler als Web-App. Spezifikation: [docs/SPEC.md](docs/SPE
 |---|---|
 | `packages/shared` – Regeln, Balance-Werte, 12 Einheiten | fertig (Startwerte) |
 | `packages/sim` – deterministische Kampfsimulation + Ereignis-Protokoll | fertig |
-| Balance-Runner (`pnpm balance`) + Tuner (`pnpm balance --tune`) | fertig – 136 von 144 Balance-Zielen erfüllt (offen, siehe unten) |
+| Balance-Runner (`pnpm balance`) + Tuner (`pnpm balance --tune`) | fertig – 134 von 144 Balance-Zielen erfüllt (siehe unten) |
 | `packages/game` – Match-Regeln (Deck, Draft, Runden, Herzen) + Bot | fertig |
 | `apps/client` – spielbar lokal: gegen Bot oder 2 Spieler an einem Gerät | fertig |
 | `apps/server` (online, Login, Datenbank) | später |
@@ -40,7 +40,7 @@ Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-S
 - **2 Spieler, 1 Gerät:** Beide wählen ein Deck; vor jedem Pick kommt ein Übergabe-Bildschirm, damit der andere nicht mitliest.
 - Pro Pick 20 Sekunden, danach wird zufällig gewählt. Aufstiege sind eine der 3 Optionen im Angebot.
 - Nach jedem Pick zeigt das Feld kurz beide Armeen, die neuen Einheiten erscheinen animiert (antippen überspringt).
-- Kämpfe lassen sich mit 1×/2×/4× abspielen oder überspringen; die Kamera folgt den Einheiten.
+- Kämpfe finden in einer Arena mit Wänden statt und lassen sich mit 1×/2×/4× abspielen oder überspringen.
 
 Auf dem Handy testen: `pnpm dev:lan` macht den Server im **Heimnetz** sichtbar (Adresse steht in der Konsole). Nur im eigenen WLAN nutzen.
 
@@ -58,7 +58,7 @@ Chrome bietet dann „App installieren“ an. Installieren geht nur über `local
 
 Regel seit 2026-11-02: Arbeitet die Form gegen den erwarteten Sieger, muss er nur in ≥ 60 % der Spiele gewinnen, sonst immer (`GOALS.conflictMinWinPct`).
 
-Nach dem Tuning scheitern noch 8 von 144 Zielen, fast alle rund um Mörser und Bollwerk: Ein Flächentreffer löscht eng stehende Masse-Einheiten fast komplett aus. Ein Kampf geht zudem bei fast allen Seeds gleich aus, deshalb lockert die 60-%-Regel in der Praxis kaum etwas. **Entscheidung (2026-11-02):** Flächenschaden bleibt „alles oder nichts“, kein Abfall zum Rand. Die 8 Ausnahmen werden akzeptiert; das echte Balancing kommt aus Testspielen. Der Abnahmetest `packages/sim/test/acceptance.test.ts` bleibt bis dahin übersprungen.
+Nach dem Tuning scheitern noch 10 von 144 Zielen (Stand Arena-Umbau), fast alle rund um Mörser und Bollwerk: Ein Flächentreffer löscht eng stehende Masse-Einheiten fast komplett aus. Ein Kampf geht zudem bei fast allen Seeds gleich aus, deshalb lockert die 60-%-Regel in der Praxis kaum etwas. **Entscheidung (2026-11-02):** Flächenschaden bleibt „alles oder nichts“, kein Abfall zum Rand. Die Ausnahmen werden akzeptiert; das echte Balancing kommt aus Testspielen. Der Abnahmetest `packages/sim/test/acceptance.test.ts` bleibt bis dahin übersprungen.
 
 ## Aufbau
 

@@ -32,8 +32,9 @@ export const GOALS = {
 /** Battle simulation constants. See docs/SPEC.md §4. */
 export const BATTLE = {
   ticksPerSecond: 20,
-  fieldWidth: 1000,
-  fieldHeight: 1400,
+  /** The arena. Walls keep every unit fully inside. */
+  fieldWidth: 640,
+  fieldHeight: 960,
   /** Sudden death starts after this many ticks (30 s). */
   suddenDeathTick: 600,
   /** Each sudden-death second deals (seconds since start + 1) × this percent of max HP. */

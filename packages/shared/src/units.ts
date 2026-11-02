@@ -38,8 +38,9 @@ export const COUNTERS: Readonly<Record<Role, Role>> = {
 };
 
 const TPS = 20;
-const RANGE = { melee: 12, mid: 260, long: 480 } as const;
-const SPEED = { slow: 3, mid: 5, fast: 8 } as const;
+const RANGE = { melee: 12, mid: 220, long: 400 } as const;
+/** Arena units per tick (×20 per second). */
+const SPEED = { slow: 2, mid: 3, fast: 4 } as const;
 
 interface Spec {
   id: string;
@@ -57,8 +58,8 @@ interface Spec {
 }
 
 function radiusFor(form: Form, count: number): number {
-  if (form === "elite") return 16;
-  return count >= 5 ? 8 : 11;
+  if (form === "elite") return 24;
+  return count >= 5 ? 13 : 17;
 }
 
 function unit(s: Spec): UnitType {
@@ -76,7 +77,7 @@ function unit(s: Spec): UnitType {
     speed: s.speed,
     radius: radiusFor(s.form, s.count),
     areaRadius: s.areaRadius ?? 0,
-    projectileSpeed: s.role === "ranged" ? 30 : 0,
+    projectileSpeed: s.role === "ranged" ? 20 : 0,
     teleport: s.role === "assassin",
   };
 }

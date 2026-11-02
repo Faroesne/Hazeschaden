@@ -18,84 +18,72 @@ function unitImage(typeId: string): HTMLImageElement | undefined {
 }
 
 export const SIDE_COLOR = ["#4da3ff", "#ff5d5d"] as const;
-/** Units are drawn larger than their collision radius so they stay readable on a phone. */
-const VISUAL_SCALE = 1.8;
+/** Tokens are drawn slightly smaller than their collision radius, so neighbours never touch. */
+const VISUAL_SCALE = 0.92;
+const TILE = 80;
+const WALL = 6;
 const SIDE_DARK = ["#1d4f85", "#8a2525"] as const;
 
-/** Which part of the field is visible: top-left corner and zoom (1 = whole field). */
-export interface Camera {
-  x0: number;
-  y0: number;
-  zoom: number;
-}
-
-export interface Bounds {
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-}
-
-const MAX_ZOOM = 2.4;
-const CAMERA_PAD = 90;
-
-/** Zooms in on `bounds` (plus padding), keeping the field's aspect ratio and never zooming out past the whole field. */
-export function fitCamera(b: Bounds): Camera {
+/** Clears the canvas and draws the arena: floor, team halves, centre line and walls. */
+export function drawField(ctx: CanvasRenderingContext2D, scale: number): void {
   const W = BATTLE.fieldWidth;
   const H = BATTLE.fieldHeight;
-  const bw = b.maxX - b.minX + 2 * CAMERA_PAD;
-  const bh = b.maxY - b.minY + 2 * CAMERA_PAD;
-  const zoom = Math.max(1, Math.min(MAX_ZOOM, W / bw, H / bh));
-  const cx = (b.minX + b.maxX) / 2;
-  const cy = (b.minY + b.maxY) / 2;
-  const vw = W / zoom;
-  const vh = H / zoom;
-  return {
-    x0: Math.min(W - vw, Math.max(0, cx - vw / 2)),
-    y0: Math.min(H - vh, Math.max(0, cy - vh / 2)),
-    zoom,
-  };
-}
-
-export function boundsOf(points: Iterable<{ x: number; y: number }>): Bounds {
-  const b = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
-  for (const p of points) {
-    b.minX = Math.min(b.minX, p.x);
-    b.minY = Math.min(b.minY, p.y);
-    b.maxX = Math.max(b.maxX, p.x);
-    b.maxY = Math.max(b.maxY, p.y);
-  }
-  if (b.minX === Infinity) return { minX: 0, minY: 0, maxX: BATTLE.fieldWidth, maxY: BATTLE.fieldHeight };
-  return b;
-}
-
-const WHOLE_FIELD: Camera = { x0: 0, y0: 0, zoom: 1 };
-
-/** Clears the canvas and draws the empty field: own half bottom, enemy half top. */
-export function drawField(ctx: CanvasRenderingContext2D, scale: number, cam: Camera = WHOLE_FIELD): void {
-  const W = BATTLE.fieldWidth;
-  const H = BATTLE.fieldHeight;
-  const z = scale * cam.zoom;
-  ctx.setTransform(z, 0, 0, z, -cam.x0 * z, -cam.y0 * z);
-  ctx.fillStyle = "#151922";
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.fillStyle = "#0c0e13";
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "#181d28";
+
+  // Floor with a faint tile grid; each half tinted in its team's colour.
+  ctx.fillStyle = "#1a1720";
+  ctx.fillRect(0, 0, W, H / 2);
+  ctx.fillStyle = "#151b26";
   ctx.fillRect(0, H / 2, W, H / 2);
-  ctx.strokeStyle = "#2a3242";
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.035)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = TILE; x < W; x += TILE) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+  }
+  for (let y = TILE; y < H; y += TILE) {
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
   ctx.lineWidth = 2;
-  ctx.setLineDash([12, 12]);
+  ctx.setLineDash([14, 10]);
   ctx.beginPath();
   ctx.moveTo(0, H / 2);
   ctx.lineTo(W, H / 2);
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.arc(W / 2, H / 2, 60, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Walls.
+  ctx.strokeStyle = "#3a4256";
+  ctx.lineWidth = WALL;
+  ctx.strokeRect(WALL / 2, WALL / 2, W - WALL, H - WALL);
+  ctx.strokeStyle = "rgba(255, 60, 60, 0.45)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(WALL, WALL);
+  ctx.lineTo(W - WALL, WALL);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(77, 163, 255, 0.45)";
+  ctx.beginPath();
+  ctx.moveTo(WALL, H - WALL);
+  ctx.lineTo(W - WALL, H - WALL);
+  ctx.stroke();
 }
 
 /** Draws one moment of the battle onto a canvas whose drawing buffer is `scale` × the field size. */
-export function drawBattle(ctx: CanvasRenderingContext2D, pb: Playback, tick: number, scale: number, cam: Camera = WHOLE_FIELD): void {
+export function drawBattle(ctx: CanvasRenderingContext2D, pb: Playback, tick: number, scale: number): void {
   const W = BATTLE.fieldWidth;
   const H = BATTLE.fieldHeight;
-  drawField(ctx, scale, cam);
+  drawField(ctx, scale);
   if (pb.suddenDeathAt(tick)) {
     ctx.fillStyle = "rgba(255, 60, 60, 0.08)";
     ctx.fillRect(0, 0, W, H);
@@ -111,7 +99,7 @@ export function drawBattle(ctx: CanvasRenderingContext2D, pb: Playback, tick: nu
     } else {
       ctx.fillStyle = `rgba(255, 255, 255, ${0.6 * h.fresh})`;
       ctx.beginPath();
-      ctx.arc(h.x, h.y, 10, 0, Math.PI * 2);
+      ctx.arc(h.x, h.y, 7, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -121,7 +109,7 @@ export function drawBattle(ctx: CanvasRenderingContext2D, pb: Playback, tick: nu
   for (const p of pb.projectilesAt(tick)) {
     ctx.fillStyle = p.side === 0 ? "#bfe0ff" : "#ffd0d0";
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -142,9 +130,9 @@ export function drawUnit(ctx: CanvasRenderingContext2D, u: UnitView, opts: UnitD
 
   if (opts.glow && opts.glow > 0) {
     ctx.strokeStyle = `rgba(255, 200, 80, ${opts.glow})`;
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(u.x, u.y, r + 8, 0, Math.PI * 2);
+    ctx.arc(u.x, u.y, r + 5, 0, Math.PI * 2);
     ctx.stroke();
   }
 
@@ -166,7 +154,7 @@ export function drawUnit(ctx: CanvasRenderingContext2D, u: UnitView, opts: UnitD
   for (let i = 1; i < u.level; i++) {
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
-    ctx.arc(u.x - r + i * 10, u.y - r - 8, 4, 0, Math.PI * 2);
+    ctx.arc(u.x - r + i * 8, u.y - r - 5, 3, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -174,8 +162,8 @@ export function drawUnit(ctx: CanvasRenderingContext2D, u: UnitView, opts: UnitD
     const w = Math.max(16, r * 2);
     const frac = u.hp / u.maxHp;
     ctx.fillStyle = "#000000aa";
-    ctx.fillRect(u.x - w / 2, u.y + r + 4, w, 6);
+    ctx.fillRect(u.x - w / 2, u.y + r + 3, w, 4);
     ctx.fillStyle = frac > 0.5 ? "#62d26f" : frac > 0.25 ? "#f0c040" : "#f05050";
-    ctx.fillRect(u.x - w / 2, u.y + r + 4, w * frac, 6);
+    ctx.fillRect(u.x - w / 2, u.y + r + 3, w * frac, 4);
   }
 }

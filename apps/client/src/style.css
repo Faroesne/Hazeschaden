@@ -420,9 +420,9 @@ h2 {
 
 .battle-canvas {
   width: 100%;
-  aspect-ratio: 1000 / 1400;
+  aspect-ratio: 2 / 3;
   border-radius: 12px;
-  background: #151922;
+  background: #0c0e13;
   display: block;
 }
 

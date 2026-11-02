@@ -37,10 +37,11 @@ describe("tuneUnits", () => {
   });
 
   it("leaves a catalog alone when a conflict goal already has its majority", () => {
-    // Found by search: mortar wins 7/8 against Koloss (conflict goal, 60% needed); all else passes.
+    // Found by search: mortar wins 6/8 against Koloss (conflict goal, 60% needed); all else passes.
+    // Re-search when battle rules change (see git history of this test for the search loop).
     const almost: UnitType[] = [
       getUnitType("koloss"),
-      { ...getUnitType("moerser"), hp: 250, damage: 350 },
+      { ...getUnitType("moerser"), hp: 275, damage: 350 },
       getUnitType("klingenmeister"),
     ];
     expect(checkGoals(4, { units: almost }).every((c) => c.passed)).toBe(true);

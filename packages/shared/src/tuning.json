@@ -13,14 +13,14 @@
   },
   "dornenwache": {
     "hp": 750,
-    "damage": 22
+    "damage": 27
   },
   "scharfschuetze": {
-    "hp": 853,
+    "hp": 864,
     "damage": 158
   },
   "moerser": {
-    "hp": 245,
+    "hp": 306,
     "damage": 222
   },
   "bogenschuetzen": {
@@ -28,15 +28,15 @@
     "damage": 33
   },
   "funkenwerfer": {
-    "hp": 187,
-    "damage": 56
+    "hp": 205,
+    "damage": 57
   },
   "klingenmeister": {
     "hp": 768,
     "damage": 69
   },
   "wirbelklinge": {
-    "hp": 800,
+    "hp": 844,
     "damage": 44
   },
   "schattenrudel": {
@@ -44,7 +44,7 @@
     "damage": 15
   },
   "giftmischer": {
-    "hp": 375,
-    "damage": 28
+    "hp": 412,
+    "damage": 34
   }
 }
