@@ -101,7 +101,8 @@ Das sind die Design-Startwerte (`BASE_UNITS`). Gespielt wird mit `UNITS` = Start
 | `packages/sim` | Reine Simulation: Ganzzahlen, Seed-RNG (kein `Math.random`, keine Floats), keine Abhängigkeiten |
 | `packages/shared` | Einheiten-Daten, Typen, Netzwerk-Protokoll |
 | `apps/server` | Node + Colyseus (Räume, Queue, Reconnect) + HTTP-API; server-autoritativ; eigener typisierter Event-Bus |
-| `apps/client` | React + Vite, PixiJS nur für den Kampf, PWA; max. 30 FPS nur im Kampf, pausiert im Hintergrund |
+| `packages/game` | Match-Regeln als reine Funktionen (Deck, Angebote, Picks, Runden, Herzen) + Bot; läuft im Client und später auf dem Server |
+| `apps/client` | React + Vite, Kampfanzeige mit Canvas 2D (statt PixiJS, solange es nur Formen gibt), PWA; max. 30 FPS nur im Kampf, pausiert im Hintergrund. Modi vorerst lokal: gegen Bot, 2 Spieler an einem Gerät |
 | Kampf → Client | Server sendet **Ereignis-Protokoll**; Client spielt nur ab |
 | Replays | Ereignis-Protokoll komprimiert in Postgres → bleiben nach Balancing abspielbar |
 | Datenbank | Postgres + TypeORM (nur Persistenz, keine Entity-Listener für Spiellogik) |

@@ -9,8 +9,9 @@ Kompetitiver 1v1-Autobattler als Web-App. Spezifikation: [docs/SPEC.md](docs/SPE
 | `packages/shared` – Regeln, Balance-Werte, 12 Einheiten | fertig (Startwerte) |
 | `packages/sim` – deterministische Kampfsimulation + Ereignis-Protokoll | fertig |
 | Balance-Runner (`pnpm balance`) + Tuner (`pnpm balance --tune`) | fertig – 136 von 144 Balance-Zielen erfüllt (offen, siehe unten) |
-| `apps/server` (Colyseus, API, Postgres) | geplant |
-| `apps/client` (React, PixiJS, PWA) | geplant |
+| `packages/game` – Match-Regeln (Deck, Draft, Runden, Herzen) + Bot | fertig |
+| `apps/client` – spielbar lokal: gegen Bot oder 2 Spieler an einem Gerät | fertig |
+| `apps/server` (online, Login, Datenbank) | später |
 
 ## Loslegen (Windows)
 
@@ -22,6 +23,7 @@ corepack enable
 pnpm install
 git add pnpm-lock.yaml && git commit -m "Add lockfile"
 
+pnpm dev            # Spiel starten → http://127.0.0.1:5173
 pnpm check          # Typecheck + Tests
 pnpm balance        # Siegquoten-Matrix + Balance-Ziele
 pnpm balance --sweep               # beste Konter-/Level-Boni suchen
@@ -30,6 +32,16 @@ pnpm balance --tune                # Leben/Schaden pro Einheit tunen → package
 ```
 
 Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-Startwerte, `tuning.json` überschreibt Leben und Schaden. Das Spiel nutzt `UNITS` (Startwerte + Tuning). Der Tuner bleibt im Bereich 25–400 % der Startwerte.
+
+## Lokal spielen
+
+`pnpm dev` startet das Spiel unter http://127.0.0.1:5173 (nur auf diesem Rechner erreichbar).
+
+- **Gegen Bot:** Deck aus 5 Einheiten wählen, der Bot bekommt ein Zufallsdeck und draftet gegen deine stärkste Rolle.
+- **2 Spieler, 1 Gerät:** Beide wählen ein Deck; vor jedem Pick kommt ein Übergabe-Bildschirm, damit der andere nicht mitliest.
+- Pro Pick 10 Sekunden, danach wird zufällig gewählt. Kämpfe lassen sich mit 1×/2×/4× abspielen oder überspringen.
+
+Auf dem Handy testen: `pnpm dev:lan` macht den Server im **Heimnetz** sichtbar (Adresse steht in der Konsole). Nur im eigenen WLAN nutzen.
 
 ## Bewusst so gelassen: Flächenschaden gegen Masse
 
@@ -43,8 +55,9 @@ Nach dem Tuning scheitern noch 8 von 144 Zielen, fast alle rund um Mörser und B
 packages/shared   Regeln (RULES), Balance-Knöpfe (BALANCE), Kampf-Konstanten (BATTLE), Einheiten (UNITS)
 packages/sim      simulateBattle(): reine Funktion, nur Ganzzahlen, Seed-RNG → gleiches Ergebnis überall
 packages/sim/scripts/balance.ts   Balance-Runner
-apps/server       (geplant)
-apps/client       (geplant)
+packages/game     Match-Regeln als reine Funktionen (createMatch, choose, fightRound) + Bot
+apps/client       React-App: Deck-Auswahl, Draft, Kampf (Canvas), Ergebnis
+apps/server       (später)
 docs/             Spezifikation, Glossar
 ```
 

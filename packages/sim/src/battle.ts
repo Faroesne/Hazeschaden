@@ -65,7 +65,7 @@ export function simulateBattle(input: BattleInput, options: BattleOptions = {}):
   }
   teleportAssassins(units);
   for (const u of units) {
-    emit({ t: 0, type: "spawn", id: u.id, side: u.side, typeId: u.type.id, level: u.level, x: u.x, y: u.y, hp: u.hp });
+    emit({ t: 0, type: "spawn", id: u.id, side: u.side, typeId: u.type.id, level: u.level, x: u.x, y: u.y, hp: u.hp, radius: u.type.radius });
   }
   if (record) frames.push(snapshot(0, units));
 
@@ -367,19 +367,22 @@ function resolveHit(
   if (area === 0) {
     if (!target.alive) return;
     target.hp -= hit.primaryDamage;
-    emit({ t, type: "hit", id: source.id, target: target.id, damage: hit.primaryDamage, x: target.x, y: target.y, area: 0 });
+    emit({ t, type: "hit", id: source.id, target: target.id, x: target.x, y: target.y, area: 0, damages: [target.id, hit.primaryDamage] });
     return;
   }
   // Splash around the target's position (its last position if it already died).
+  const damages: number[] = [];
   for (const v of units) {
     if (!v.alive || v.side === source.side) continue;
     const reach = area + v.type.radius;
     const dx = v.x - target.x;
     const dy = v.y - target.y;
     if (dx * dx + dy * dy > reach * reach) continue;
-    v.hp -= damageAgainst(source, v);
+    const dmg = damageAgainst(source, v);
+    v.hp -= dmg;
+    damages.push(v.id, dmg);
   }
-  emit({ t, type: "hit", id: source.id, target: target.id, damage: hit.primaryDamage, x: target.x, y: target.y, area });
+  emit({ t, type: "hit", id: source.id, target: target.id, x: target.x, y: target.y, area, damages });
 }
 
 // --- Movement --------------------------------------------------------------

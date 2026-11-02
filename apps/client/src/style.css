@@ -1,0 +1,395 @@
+:root {
+  --bg: #101218;
+  --panel: #191d27;
+  --panel-2: #222836;
+  --line: #2c3444;
+  --text: #e8ebf2;
+  --muted: #8b93a7;
+  --accent: #ffc850;
+  --p0: #4da3ff;
+  --p1: #ff5d5d;
+  --tank: #7cc4a0;
+  --ranged: #e0b25c;
+  --assassin: #b58cff;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0.25rem 0;
+}
+
+h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 1rem 0 0.4rem;
+}
+
+.screen {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+
+.screen.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  margin: 8px 0 14px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row.between {
+  justify-content: space-between;
+  margin: 12px 0 8px;
+}
+
+/* Buttons */
+.primary {
+  background: var(--accent);
+  color: #1a1408;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+}
+
+.primary:disabled {
+  background: var(--panel-2);
+  color: var(--muted);
+  cursor: default;
+}
+
+.wide {
+  width: 100%;
+  max-width: 420px;
+}
+
+.chip {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+
+.chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chip.levelup {
+  border-color: var(--accent);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.segmented {
+  display: flex;
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.segmented button {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 6px;
+  color: var(--muted);
+}
+
+.segmented button.active {
+  background: var(--panel-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.segmented.small button {
+  font-size: 0.85rem;
+}
+
+/* Unit cards */
+.unit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-bottom: 80px;
+}
+
+.unit-card {
+  text-align: left;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-left-width: 5px;
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.unit-card:disabled {
+  cursor: default;
+}
+
+.unit-card.role-tank {
+  border-left-color: var(--tank);
+}
+.unit-card.role-ranged {
+  border-left-color: var(--ranged);
+}
+.unit-card.role-assassin {
+  border-left-color: var(--assassin);
+}
+
+.unit-card.selected {
+  border-color: var(--accent);
+  background: #262214;
+}
+
+.unit-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unit-icon {
+  font-size: 0.9rem;
+}
+.role-tank .unit-icon {
+  color: var(--tank);
+}
+.role-ranged .unit-icon {
+  color: var(--ranged);
+}
+.role-assassin .unit-icon {
+  color: var(--assassin);
+}
+
+.unit-name {
+  font-weight: 700;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.unit-count {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.unit-tags,
+.unit-beats,
+.unit-owned {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.unit-owned {
+  color: var(--accent);
+}
+
+.unit-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.sticky-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--bg) 35%);
+  display: flex;
+  justify-content: center;
+}
+
+/* Draft */
+.draft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.round {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.hearts-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.hearts {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.hearts-label {
+  color: var(--muted);
+}
+
+.heart {
+  color: #3a4152;
+  font-size: 1rem;
+}
+
+.side-0 .heart.full {
+  color: var(--p0);
+}
+.side-1 .heart.full {
+  color: var(--p1);
+}
+
+.timer {
+  position: relative;
+  height: 22px;
+  background: var(--panel);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  opacity: 0.35;
+  transition: width 0.1s linear;
+}
+
+.timer-text {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 22px;
+}
+
+.offer {
+  display: grid;
+  gap: 8px;
+}
+
+.army {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.army-chip {
+  background: var(--panel);
+  border-left: 4px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+}
+
+.army-chip.role-tank {
+  border-left-color: var(--tank);
+}
+.army-chip.role-ranged {
+  border-left-color: var(--ranged);
+}
+.army-chip.role-assassin {
+  border-left-color: var(--assassin);
+}
+
+.army-chip.highlight {
+  outline: 2px solid var(--accent);
+}
+
+/* Battle */
+.battle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.battle-canvas {
+  width: 100%;
+  aspect-ratio: 1000 / 1400;
+  border-radius: 12px;
+  background: #151922;
+  display: block;
+}
+
+.battle-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.history {
+  text-align: left;
+  color: var(--muted);
+  padding-left: 1.2rem;
+}
+
+.final-armies {
+  width: 100%;
+  text-align: left;
+}

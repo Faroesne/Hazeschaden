@@ -54,7 +54,7 @@ describe("determinism", () => {
     const result = simulateBattle(mixed, { record: true });
     expect({ winner: result.winner, ticks: result.ticks, log: hash(result.log) }).toMatchInlineSnapshot(`
       {
-        "log": "f44c583e",
+        "log": "7a494be4",
         "ticks": 148,
         "winner": 0,
       }

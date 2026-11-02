@@ -32,10 +32,10 @@ export interface BattleOptions {
 export type BattleWinner = Side | "draw";
 
 export type BattleEvent =
-  | { t: number; type: "spawn"; id: number; side: Side; typeId: string; level: number; x: number; y: number; hp: number }
-  | { t: number; type: "teleport"; id: number; x: number; y: number }
+  | { t: number; type: "spawn"; id: number; side: Side; typeId: string; level: number; x: number; y: number; hp: number; radius: number }
   | { t: number; type: "attack"; id: number; target: number; arrivesAt: number }
-  | { t: number; type: "hit"; id: number; target: number; damage: number; x: number; y: number; area: number }
+  /** `damages` is flat [unitId, damage, unitId, damage, ...] for every unit hit. */
+  | { t: number; type: "hit"; id: number; target: number; x: number; y: number; area: number; damages: number[] }
   | { t: number; type: "suddenDeath"; damagePct: number }
   | { t: number; type: "death"; id: number }
   | { t: number; type: "end"; winner: BattleWinner };
