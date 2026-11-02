@@ -31,11 +31,11 @@ pnpm balance --tune                # Leben/Schaden pro Einheit tunen → package
 
 Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-Startwerte, `tuning.json` überschreibt Leben und Schaden. Das Spiel nutzt `UNITS` (Startwerte + Tuning). Der Tuner bleibt im Bereich 25–400 % der Startwerte.
 
-## Offen: Flächenschaden gegen Masse
+## Bewusst so gelassen: Flächenschaden gegen Masse
 
 Regel seit 2026-11-02: Arbeitet die Form gegen den erwarteten Sieger, muss er nur in ≥ 60 % der Spiele gewinnen, sonst immer (`GOALS.conflictMinWinPct`).
 
-Nach dem Tuning scheitern noch 8 von 144 Zielen, fast alle rund um Mörser und Bollwerk: Ein Flächentreffer löscht eng stehende Masse-Einheiten fast komplett aus. Ein Kampf geht zudem bei fast allen Seeds gleich aus, deshalb lockert die 60-%-Regel in der Praxis kaum etwas. Der Abnahmetest `packages/sim/test/acceptance.test.ts` ist deshalb vorerst übersprungen.
+Nach dem Tuning scheitern noch 8 von 144 Zielen, fast alle rund um Mörser und Bollwerk: Ein Flächentreffer löscht eng stehende Masse-Einheiten fast komplett aus. Ein Kampf geht zudem bei fast allen Seeds gleich aus, deshalb lockert die 60-%-Regel in der Praxis kaum etwas. **Entscheidung (2026-11-02):** Flächenschaden bleibt „alles oder nichts“, kein Abfall zum Rand. Die 8 Ausnahmen werden akzeptiert; das echte Balancing kommt aus Testspielen. Der Abnahmetest `packages/sim/test/acceptance.test.ts` bleibt bis dahin übersprungen.
 
 ## Aufbau
 
