@@ -1,7 +1,7 @@
 import { BATTLE, UNITS, getUnitType } from "@hazeschaden/shared";
 import { unitSvg } from "../art/unitArt";
 import { drawCharacter, hasCharacter } from "./characters";
-import { ARENA, CHAR_HEIGHT_PER_RADIUS, FEET_OFFSET_PER_RADIUS, FX, OUTLINE, TEAM } from "./characters/style";
+import { ARENA, FEET_OFFSET_PER_RADIUS, FX, OUTLINE, TEAM, charHeight as heightFor } from "./characters/style";
 import type { DyingView, HitView, Playback, ProjectileView, UnitView } from "./playback";
 
 /** Unit symbols in white for units without a character yet. Created once, on first use (browser only). */
@@ -114,7 +114,7 @@ export interface UnitDrawOptions {
   glow?: number;
 }
 
-const charHeight = (u: { radius: number }) => u.radius * CHAR_HEIGHT_PER_RADIUS;
+const charHeight = (u: { radius: number }) => heightFor(u.radius);
 
 /** A unit: its character if it has one (docs/ART_STYLE.md), otherwise a symbol token. */
 export function drawUnit(ctx: CanvasRenderingContext2D, u: UnitView, opts: UnitDrawOptions = {}): void {

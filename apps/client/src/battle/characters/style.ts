@@ -7,6 +7,8 @@ export const OUTLINE_WIDTH = 3.6;
 export interface Tone {
   base: string;
   shade: string;
+  /** Optional highlight on the lit (left) side, used by Painter.part3. */
+  light?: string;
 }
 
 export interface TeamTone extends Tone {
@@ -19,11 +21,12 @@ export const TEAM: readonly [TeamTone, TeamTone] = [
 ];
 
 export const MAT = {
-  steel: { base: "#c9d3e0", shade: "#8a97ab" },
-  iron: { base: "#5b6274", shade: "#3a3f4d" },
-  wood: { base: "#a8743f", shade: "#6f4a25" },
-  leather: { base: "#8a5531", shade: "#5e3820" },
-  gold: { base: "#ffcf3f", shade: "#c9902a" },
+  steel: { base: "#c9d3e0", shade: "#8a97ab", light: "#eef3f9" },
+  iron: { base: "#5b6274", shade: "#3a3f4d", light: "#7d8598" },
+  wood: { base: "#a8743f", shade: "#6f4a25", light: "#c99257" },
+  leather: { base: "#8a5531", shade: "#5e3820", light: "#a8703f" },
+  gold: { base: "#ffcf3f", shade: "#c9902a", light: "#fff0a8" },
+  chain: { base: "#9aa3b4", shade: "#6b7385", light: "#c4cbd8" },
   bronze: { base: "#d08a4a", shade: "#9a5c2a" },
   cloth: { base: "#3a3150", shade: "#241e33" },
   skinLight: { base: "#f6cfa6", shade: "#d9a77c" },
@@ -51,7 +54,12 @@ export const ARENA = {
   chalk: "rgba(255,255,255,0.55)",
 } as const;
 
-/** Figure height = collision radius × this. */
-export const CHAR_HEIGHT_PER_RADIUS = 3;
+/**
+ * Figure height in arena units. All units are nearly the same size (docs/ART_STYLE.md §3):
+ * only a slight difference between mass (small radius) and elite units.
+ */
+export function charHeight(radius: number): number {
+  return 58 + radius * 0.5;
+}
 /** Feet sit this many radii below the unit's position. */
 export const FEET_OFFSET_PER_RADIUS = 0.75;

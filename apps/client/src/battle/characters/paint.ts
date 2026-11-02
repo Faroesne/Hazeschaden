@@ -118,6 +118,65 @@ export class Painter {
     c.stroke();
   }
 
+  /**
+   * A part with three tones: base, shade on the right of `shadeFrom`, and a light rim on the
+   * left of `lightTo` (the lit side, light from top-left).
+   */
+  part3(path: (c: CanvasRenderingContext2D) => void, tone: Tone, shadeFrom: number, lightTo: number): void {
+    const c = this.ctx;
+    c.beginPath();
+    path(c);
+    c.fillStyle = this.color(tone.base);
+    c.fill();
+    c.save();
+    c.clip();
+    c.fillStyle = this.color(tone.shade);
+    c.fillRect(shadeFrom, -300, 600, 600);
+    if (tone.light) {
+      c.fillStyle = this.color(tone.light);
+      c.fillRect(-300, -300, 300 + lightTo, 600);
+    }
+    c.restore();
+    c.beginPath();
+    path(c);
+    c.strokeStyle = OUTLINE;
+    c.lineWidth = OUTLINE_WIDTH;
+    c.stroke();
+  }
+
+  /** Thin inner detail lines (plate seams, folds, stitching). */
+  line(path: (c: CanvasRenderingContext2D) => void, width = 1.6, color: string = OUTLINE): void {
+    const c = this.ctx;
+    c.beginPath();
+    path(c);
+    c.strokeStyle = color === OUTLINE ? OUTLINE : this.color(color);
+    c.lineWidth = width;
+    c.stroke();
+  }
+
+  /** A soft specular glint (metal, gems): white with alpha, no outline. */
+  gloss(path: (c: CanvasRenderingContext2D) => void, alpha = 0.55): void {
+    const c = this.ctx;
+    c.beginPath();
+    path(c);
+    c.fillStyle = `rgba(255,255,255,${Math.min(1, alpha + this.flash * 0.3)})`;
+    c.fill();
+  }
+
+  /** Small rivets/studs along a list of points. */
+  rivets(points: readonly (readonly [number, number])[], r = 1.6, tone: Tone = { base: "#e9eef5", shade: "#8a97ab" }): void {
+    const c = this.ctx;
+    for (const [x, y] of points) {
+      c.beginPath();
+      c.arc(x, y, r, 0, Math.PI * 2);
+      c.fillStyle = this.color(tone.base);
+      c.fill();
+      c.lineWidth = 0.9;
+      c.strokeStyle = OUTLINE;
+      c.stroke();
+    }
+  }
+
   /** A flat detail without outline (eyes, slits, highlights). */
   flat(path: (c: CanvasRenderingContext2D) => void, color: string): void {
     const c = this.ctx;

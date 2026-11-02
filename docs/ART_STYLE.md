@@ -13,7 +13,7 @@ Ein eigener Stil im Genre der mobilen Arena-Battler (Richtung Clash Royale / Dra
 
 - **Chibi-Proportionen:** Kopf ≈ 40–45 % der Figurenhöhe, kurze Beine, große Hände/Waffen.
 - **Kräftige Konturen:** jede Fläche hat eine dunkle Outline `#1b1530`, gleich dick für alle Teile.
-- **Cel-Shading mit 2 Tönen:** Grundfarbe + Schattenton (rechte Seite jedes Teils, Licht kommt von links oben). Kein Verlauf auf Figuren.
+- **Cel-Shading mit 3 Tönen:** Licht-Kante links, Grundfarbe, Schattenton rechts (Licht kommt von links oben). Kein Verlauf auf Figuren.
 - **Satte, warme Farben**, klare Silhouetten. Lesbar auf 20 px Höhe.
 - **Übertriebene Bewegung:** Ausholen, Squash & Stretch, Nachschwingen.
 
@@ -49,7 +49,7 @@ Treffer-Funke `#fff6c2` → `#ffd24a` · Schockwelle `#ffd76a` · Rauch `#d9d4e3
 ## 3. Figuren-Baukasten
 
 - **Koordinaten:** Füße bei (0, 0), Figurenhöhe 100 Einheiten, Blick nach rechts (+x). Gespiegelt wird über die Blickrichtung.
-- **Größe im Kampf:** Figurenhöhe = Kollisionsradius × 3; Füße liegen bei Radius × 0,75 unter dem Mittelpunkt.
+- **Größe im Kampf:** alle Figuren fast gleich groß – Höhe = 58 + Kollisionsradius × 0,5 Arena-Einheiten (Masse ≈ 65, Klasse ≈ 70). Unterschiede in Stärke zeigt die Ausstattung, nicht die Größe.
 - **Zeichenreihenfolge:** Schatten → hinterer Arm/Ausrüstung → Beine → Körper → Kopf → vorderer Arm/Waffe → Effekte. Figuren nach y sortiert (weiter unten = davor).
 - **Bodenschatten:** Ellipse 52 × 16, `rgba(0,0,0,0.28)`, ohne Outline.
 - **Form zeigt Stärke:** *Klasse*-Einheiten sind breiter, detaillierter, mit Gold-Akzenten. *Masse*-Einheiten sind schlicht, klein und gleich.
@@ -59,6 +59,9 @@ Treffer-Funke `#fff6c2` → `#ffd24a` · Schockwelle `#ffd76a` · Rauch `#d9d4e3
   - **Assassine:** dunkler Stoff, Maske, schlanke Silhouette, Klingen, wehender Schal in Teamfarbe.
 - **Level:** goldene Sterne über dem Kopf (1 pro Level über 1).
 - **Lebensbalken:** über dem Kopf, nur wenn verletzt; grün > gelb > rot.
+
+### Detailgrad (Referenz: Koloss)
+Jede Figur braucht mindestens: 3-Ton-Schattierung auf allen großen Flächen, feine Innenlinien (Plattennähte, Stofffalten, Wicklungen), Nieten/Beschläge in Metall, Goldbesatz an Rändern, einen Glanzpunkt auf Metall/Edelsteinen und ein Emblem auf der Teamfläche. Werkzeuge in `paint.ts`: `part3`, `line`, `rivets`, `gloss`.
 
 ## 4. Animationen (Zeiten in Ticks, 20 Ticks = 1 s)
 
@@ -101,7 +104,7 @@ Status: ✅ als Figur umgesetzt · ⏳ noch Symbol
 
 | Einheit | Status | Silhouette & Ausrüstung | Teamfarbe auf | Angriff |
 |---|---|---|---|---|
-| Koloss | ✅ | Breiter Ritter, Topfhelm mit Sehschlitz, riesiger Turmschild, Streitkolben | Federbusch, Schild, Tabard | Kolben weit über den Kopf, Schmetterschlag |
+| Koloss | ✅ Detail-Referenz | Breiter Ritter, Topfhelm mit Sehschlitz, riesiger Turmschild, Streitkolben | Federbusch, Schild, Tabard | Kolben weit über den Kopf, Schmetterschlag |
 | Bollwerk | ⏳ | Kleiner Steingolem mit Wehrturm auf dem Rücken, Fäuste wie Felsblöcke | Banner auf dem Turm | Beidhändiger Bodenstampfer (Schockwelle) |
 | Schildträger | ✅ | Kleiner Soldat, Nasenhelm, großer Rundschild, kurzer Speer | Schildfläche, Helmband | Speerstoß nach vorn |
 | Dornenwache | ⏳ | Gedrungener Wächter in Dornenrüstung, Stachelschild | Wappenrock, Schildmitte | Schildschlag, Dornen sprühen |
