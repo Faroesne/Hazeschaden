@@ -6,9 +6,11 @@
  *   pnpm balance --sweep         search counter/level bonus values with the fewest goal failures
  *   pnpm balance --strict        exit code 1 if any goal fails (for CI)
  *   pnpm balance --counter 40 --level 50   try values without editing BALANCE
+ *   pnpm balance --tune          tune HP/damage per unit and write packages/shared/src/tuning.json
  */
-import { BALANCE, UNITS } from "@hazeschaden/shared";
-import { checkGoals, winMatrix, type BalanceOverrides, type GoalCheck } from "../src/index.js";
+import { writeFileSync } from "node:fs";
+import { BALANCE, BASE_UNITS, UNITS, type Tuning } from "@hazeschaden/shared";
+import { checkGoals, tuneUnits, winMatrix, type BalanceOverrides, type GoalCheck } from "../src/index.js";
 
 const args = process.argv.slice(2);
 const flag = (name: string): boolean => args.includes(`--${name}`);
@@ -29,7 +31,7 @@ function short(id: string): string {
 }
 
 function printMatrix(): void {
-  const m = winMatrix(seeds, balance);
+  const m = winMatrix(seeds, { balance });
   console.log(`\nSiegquote Zeile gegen Spalte in %, je 1 Pick (${seeds} Seeds × 2 Seiten)\n`);
   console.log("       " + UNITS.map((u) => short(u.id)).join(" "));
   UNITS.forEach((u, i) => {
@@ -64,7 +66,7 @@ function sweep(): void {
   for (let counter = 0; counter <= 150; counter += 10) {
     const cells: string[] = [];
     for (const level of levelValues) {
-      const failures = checkGoals(sweepSeeds, { counterBonusPct: counter, levelBonusPct: level }).filter(
+      const failures = checkGoals(sweepSeeds, { balance: { counterBonusPct: counter, levelBonusPct: level } }).filter(
         (c) => !c.passed,
       ).length;
       if (failures < best.failures) best = { failures, counter, level };
@@ -75,12 +77,33 @@ function sweep(): void {
   console.log(`\nBester Wert: counter ${best.counter}%, level ${best.level}% → ${best.failures} Verletzungen`);
 }
 
+function tune(): void {
+  console.log(`Tuning (${seeds} Seeds) ... das dauert etwas.`);
+  const { units, report } = tuneUnits(UNITS, { seeds, balance, reference: BASE_UNITS });
+  const tuning: Tuning = {};
+  for (const u of units) tuning[u.id] = { hp: u.hp, damage: u.damage };
+  const path = new URL("../../shared/src/tuning.json", import.meta.url);
+  writeFileSync(path, JSON.stringify(tuning, null, 2) + "\n");
+  console.log(`\n${report.passes} Durchläufe. Geschrieben: packages/shared/src/tuning.json`);
+  for (const u of units) {
+    const base = BASE_UNITS.find((b) => b.id === u.id)!;
+    console.log(`  ${u.id.padEnd(15)} Leben ${String(base.hp).padStart(5)} → ${String(u.hp).padStart(5)}   Schaden ${String(base.damage).padStart(4)} → ${String(u.damage).padStart(4)}`);
+  }
+  if (report.passed) console.log("\nAlle Balance-Ziele erfüllt.");
+  else {
+    console.log(`\nNoch ${report.failures.length} Ziele verletzt:`);
+    for (const c of report.failures) console.log(`  ${c.kind.padEnd(7)} ${c.expectedWinner} → ${c.opponent}: ${c.stats.wins}/${c.stats.games}`);
+  }
+}
+
 console.log(`Balance: counter ${balance.counterBonusPct}%, level ${balance.levelBonusPct}%`);
-if (flag("sweep")) {
+if (flag("tune")) {
+  tune();
+} else if (flag("sweep")) {
   sweep();
 } else {
   printMatrix();
-  const checks = checkGoals(seeds, balance);
+  const checks = checkGoals(seeds, { balance });
   printGoals(checks);
   if (flag("strict") && checks.some((c) => !c.passed)) process.exit(1);
 }

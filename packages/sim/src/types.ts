@@ -1,3 +1,5 @@
+import type { UnitType } from "@hazeschaden/shared";
+
 export type Side = 0 | 1;
 
 /** One unit type in an army: how often it was picked and its level. */
@@ -20,6 +22,8 @@ export interface BalanceOverrides {
 }
 
 export interface BattleOptions {
+  /** Unit catalog to use instead of the built-in UNITS (for balancing experiments). */
+  units?: readonly UnitType[];
   /** Record the event log for playback and replays. Off for balance runs. */
   record?: boolean;
   balance?: BalanceOverrides;

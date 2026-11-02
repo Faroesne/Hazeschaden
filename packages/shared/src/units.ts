@@ -1,4 +1,5 @@
-/** Unit catalog. See docs/SPEC.md §3. Values are starting points for balancing. */
+/** Unit catalog. See docs/SPEC.md §3. */
+import tuning from "./tuning.json" with { type: "json" };
 
 export type Role = "tank" | "ranged" | "assassin";
 export type Form = "mass" | "elite";
@@ -80,7 +81,8 @@ function unit(s: Spec): UnitType {
   };
 }
 
-export const UNITS: readonly UnitType[] = [
+/** Design starting values. The shipped values (UNITS) apply tuning.json on top. */
+export const BASE_UNITS: readonly UnitType[] = [
   // Tanks
   unit({ id: "koloss", name: "Koloss", role: "tank", form: "elite", damageKind: "single", count: 1, hp: 2000, dps: 25, interval: 20, range: RANGE.melee, speed: SPEED.slow }),
   unit({ id: "bollwerk", name: "Bollwerk", role: "tank", form: "elite", damageKind: "area", count: 1, hp: 1800, dps: 18, interval: 30, range: RANGE.melee, speed: SPEED.slow, areaRadius: 40 }),
@@ -97,6 +99,19 @@ export const UNITS: readonly UnitType[] = [
   unit({ id: "schattenrudel", name: "Schattenrudel", role: "assassin", form: "mass", damageKind: "single", count: 5, hp: 100, dps: 20, interval: 10, range: RANGE.melee, speed: SPEED.fast }),
   unit({ id: "giftmischer", name: "Giftmischer", role: "assassin", form: "mass", damageKind: "area", count: 3, hp: 200, dps: 20, interval: 20, range: RANGE.melee, speed: SPEED.fast, areaRadius: 30 }),
 ];
+
+/** Per-unit HP/damage written by `pnpm balance --tune`. */
+export type Tuning = Record<string, { hp: number; damage: number }>;
+
+export function applyTuning(units: readonly UnitType[], tuning: Tuning): UnitType[] {
+  return units.map((u) => {
+    const t = tuning[u.id];
+    return t ? { ...u, hp: t.hp, damage: t.damage } : { ...u };
+  });
+}
+
+/** The unit values the game uses. */
+export const UNITS: readonly UnitType[] = applyTuning(BASE_UNITS, tuning as Tuning);
 
 const BY_ID = new Map(UNITS.map((u, i) => [u.id, { unit: u, order: i }]));
 

@@ -8,7 +8,7 @@ Kompetitiver 1v1-Autobattler als Web-App. Spezifikation: [docs/SPEC.md](docs/SPE
 |---|---|
 | `packages/shared` – Regeln, Balance-Werte, 12 Einheiten | fertig (Startwerte) |
 | `packages/sim` – deterministische Kampfsimulation + Ereignis-Protokoll | fertig |
-| Balance-Runner (`pnpm balance`) | fertig – Startwerte erfüllen die Ziele noch nicht |
+| Balance-Runner (`pnpm balance`) + Tuner (`pnpm balance --tune`) | fertig – 132 von 144 Balance-Zielen erfüllt (offene Entscheidung, siehe unten) |
 | `apps/server` (Colyseus, API, Postgres) | geplant |
 | `apps/client` (React, PixiJS, PWA) | geplant |
 
@@ -26,7 +26,14 @@ pnpm check          # Typecheck + Tests
 pnpm balance        # Siegquoten-Matrix + Balance-Ziele
 pnpm balance --sweep               # beste Konter-/Level-Boni suchen
 pnpm balance --counter 30 --level 70   # Werte ausprobieren, ohne Code zu ändern
+pnpm balance --tune                # Leben/Schaden pro Einheit tunen → packages/shared/src/tuning.json
 ```
+
+Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-Startwerte, `tuning.json` überschreibt Leben und Schaden. Das Spiel nutzt `UNITS` (Startwerte + Tuning). Der Tuner bleibt im Bereich 25–400 % der Startwerte.
+
+## Offene Entscheidung: Rolle gegen Form
+
+Nach dem Tuning scheitern noch 12 von 144 Zielen, alle in Fällen, in denen Rolle und Form sich widersprechen (z. B. Mörser mit Flächenschaden gegen Klasse-Tanks). Die Form wirkt mechanisch stärker als „Rolle gewinnt knapp“ erlaubt, und reines Tunen von Leben/Schaden löst das nicht. Der Abnahmetest `packages/sim/test/acceptance.test.ts` ist deshalb vorerst übersprungen.
 
 ## Aufbau
 

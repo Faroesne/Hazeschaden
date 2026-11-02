@@ -44,7 +44,7 @@ Nur Leben und Schaden. Keine Fähigkeiten, kein Mana. Einheiten unterscheiden si
 Anzahl pro Pick, Leben, Schaden/Angriffsintervall (DPS), Reichweite, Bewegungstempo, Flächenradius, Teleport.
 
 - **Pick-Budget** (Lanchester): `Anzahl² × Leben × DPS ≈ 50 000`. Flächenschaden-Einheiten ~30 % weniger.
-- **Level:** +Y % Leben und Schaden für alle Einheiten des Typs (auch später hinzukommende). Ein Level zählt balance-technisch wie ein Pick.
+- **Level:** +100 % Leben und Schaden pro Level über 1 (per Sweep ermittelt) für alle Einheiten des Typs (auch später hinzukommende). Ein Level zählt balance-technisch wie ein Pick.
 - Später möglich: Level schalten Mechaniken frei statt nur Werte.
 
 ### Startliste (Platzhalternamen)
@@ -64,7 +64,7 @@ Anzahl pro Pick, Leben, Schaden/Angriffsintervall (DPS), Reichweite, Bewegungste
 | Assassine | Schattenrudel | Masse | Einzel | 5 | 100 | 20 | Nah | schnell |
 | Assassine | Giftmischer | Masse | Fläche (klein) | 3 | 200 | 20 | Nah | schnell |
 
-Werte sind Startwerte; maßgeblich ist `packages/shared/src/units.ts`.
+Das sind die Design-Startwerte (`BASE_UNITS`). Gespielt wird mit `UNITS` = Startwerte + `tuning.json` (Ergebnis von `pnpm balance --tune`).
 
 ## 4. Kampf
 

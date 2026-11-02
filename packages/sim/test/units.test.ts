@@ -1,4 +1,4 @@
-import { COUNTERS, UNITS, pickBudget } from "@hazeschaden/shared";
+import { BASE_UNITS, COUNTERS, UNITS, pickBudget } from "@hazeschaden/shared";
 import { describe, expect, it } from "vitest";
 
 describe("unit catalog", () => {
@@ -27,8 +27,8 @@ describe("unit catalog", () => {
     expect(COUNTERS.tank).toBe("assassin");
   });
 
-  it("keeps every pick near the Lanchester budget (area units ~30% lower)", () => {
-    for (const u of UNITS) {
+  it("design starting values keep every pick near the Lanchester budget (area units ~30% lower)", () => {
+    for (const u of BASE_UNITS) {
       const target = u.damageKind === "area" ? 35_000 : 50_000;
       const budget = pickBudget(u);
       expect(budget / target).toBeGreaterThan(0.8);

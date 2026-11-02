@@ -1,0 +1,50 @@
+{
+  "koloss": {
+    "hp": 1920,
+    "damage": 33
+  },
+  "bollwerk": {
+    "hp": 1800,
+    "damage": 40
+  },
+  "schildtraeger": {
+    "hp": 661,
+    "damage": 13
+  },
+  "dornenwache": {
+    "hp": 750,
+    "damage": 22
+  },
+  "scharfschuetze": {
+    "hp": 853,
+    "damage": 158
+  },
+  "moerser": {
+    "hp": 245,
+    "damage": 214
+  },
+  "bogenschuetzen": {
+    "hp": 170,
+    "damage": 33
+  },
+  "funkenwerfer": {
+    "hp": 187,
+    "damage": 56
+  },
+  "klingenmeister": {
+    "hp": 768,
+    "damage": 69
+  },
+  "wirbelklinge": {
+    "hp": 800,
+    "damage": 44
+  },
+  "schattenrudel": {
+    "hp": 225,
+    "damage": 15
+  },
+  "giftmischer": {
+    "hp": 375,
+    "damage": 28
+  }
+}

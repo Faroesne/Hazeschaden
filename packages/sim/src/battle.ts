@@ -1,4 +1,4 @@
-import { BALANCE, BATTLE, COUNTERS, RULES, getUnitType, unitOrder, type UnitType } from "@hazeschaden/shared";
+import { BALANCE, BATTLE, COUNTERS, RULES, UNITS, type UnitType } from "@hazeschaden/shared";
 import { clamp, idiv, isqrt, withPct } from "./math.js";
 import { Rng } from "./rng.js";
 import type {
@@ -58,9 +58,10 @@ export function simulateBattle(input: BattleInput, options: BattleOptions = {}):
   };
 
   // --- Deploy -------------------------------------------------------------
+  const catalog = new Map((options.units ?? UNITS).map((u, i) => [u.id, { type: u, order: i }]));
   const units: Unit[] = [];
   for (const side of [0, 1] as const) {
-    deploy(side, input.armies[side], units, levelPct, rng);
+    deploy(side, input.armies[side], catalog, units, levelPct, rng);
   }
   teleportAssassins(units);
   for (const u of units) {
@@ -172,16 +173,31 @@ const ROW_ORDER = ["tank", "ranged", "assassin"] as const;
 const ROW_GAP = 60;
 const FRONT_DEPTH = 120;
 
-function deploy(side: Side, army: readonly ArmyEntry[], out: Unit[], levelPct: number, rng: Rng): void {
+type Catalog = ReadonlyMap<string, { type: UnitType; order: number }>;
+
+function lookup(catalog: Catalog, typeId: string): { type: UnitType; order: number } {
+  const entry = catalog.get(typeId);
+  if (!entry) throw new Error(`Unknown unit type: ${typeId}`);
+  return entry;
+}
+
+function deploy(
+  side: Side,
+  army: readonly ArmyEntry[],
+  catalog: Catalog,
+  out: Unit[],
+  levelPct: number,
+  rng: Rng,
+): void {
   const entries = [...army]
     .filter((e) => e.picks > 0)
-    .sort((a, b) => unitOrder(a.typeId) - unitOrder(b.typeId));
+    .sort((a, b) => lookup(catalog, a.typeId).order - lookup(catalog, b.typeId).order);
 
   let depth = FRONT_DEPTH;
   for (const role of ROW_ORDER) {
     const roleUnits: { type: UnitType; level: number }[] = [];
     for (const e of entries) {
-      const type = getUnitType(e.typeId);
+      const type = lookup(catalog, e.typeId).type;
       if (type.role !== role) continue;
       if (e.level < 1 || e.level > RULES.maxLevel) throw new Error(`Invalid level ${e.level} for ${e.typeId}`);
       for (let i = 0; i < type.count * e.picks; i++) roleUnits.push({ type, level: e.level });

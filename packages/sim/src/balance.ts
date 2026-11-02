@@ -9,6 +9,19 @@ export interface DuelStats {
   games: number;
 }
 
+/** What to evaluate: a unit catalog (default UNITS) and balance knobs (default BALANCE). */
+export interface EvalOptions {
+  units?: readonly UnitType[];
+  balance?: BalanceOverrides;
+}
+
+function battleOptions(opts: EvalOptions): { units?: readonly UnitType[]; balance?: BalanceOverrides } {
+  const out: { units?: readonly UnitType[]; balance?: BalanceOverrides } = {};
+  if (opts.units) out.units = opts.units;
+  if (opts.balance) out.balance = opts.balance;
+  return out;
+}
+
 /**
  * Plays `a` against `b` on `seeds` seeds, each seed once per side, so side bias cancels out.
  * Stats are from `a`'s point of view.
@@ -17,13 +30,14 @@ export function duel(
   a: readonly ArmyEntry[],
   b: readonly ArmyEntry[],
   seeds: number,
-  balance: BalanceOverrides = {},
+  opts: EvalOptions = {},
 ): DuelStats {
   const stats: DuelStats = { wins: 0, losses: 0, draws: 0, games: 0 };
+  const options = battleOptions(opts);
   for (let s = 1; s <= seeds; s++) {
     for (const aSide of [0, 1] as const) {
       const armies = aSide === 0 ? ([a, b] as const) : ([b, a] as const);
-      const { winner } = simulateBattle({ seed: s * 7919 + aSide, armies }, { balance });
+      const { winner } = simulateBattle({ seed: s * 7919 + aSide, armies }, options);
       stats.games++;
       if (winner === "draw") stats.draws++;
       else if (winner === aSide) stats.wins++;
@@ -61,26 +75,27 @@ export function counterPairs(units: readonly UnitType[] = UNITS): [UnitType, Uni
  * - 2 picks vs 1 pick of the counter: the counter loses.
  * - a level counts like a pick: level 2 vs the counter at level 1, the counter loses.
  */
-export function checkGoals(seeds: number, balance: BalanceOverrides = {}): GoalCheck[] {
+export function checkGoals(seeds: number, opts: EvalOptions = {}): GoalCheck[] {
   const checks: GoalCheck[] = [];
   const all = (stats: DuelStats): boolean => stats.wins === stats.games;
-  for (const [c, v] of counterPairs()) {
-    const s1 = duel(one(c.id), one(v.id), seeds, balance);
+  for (const [c, v] of counterPairs(opts.units ?? UNITS)) {
+    const s1 = duel(one(c.id), one(v.id), seeds, opts);
     checks.push({ kind: "1v1", expectedWinner: c.id, opponent: v.id, stats: s1, passed: all(s1) });
-    const s2 = duel(two(v.id), one(c.id), seeds, balance);
+    const s2 = duel(two(v.id), one(c.id), seeds, opts);
     checks.push({ kind: "2v1", expectedWinner: v.id, opponent: c.id, stats: s2, passed: all(s2) });
-    const s3 = duel(lvl2(v.id), one(c.id), seeds, balance);
+    const s3 = duel(lvl2(v.id), one(c.id), seeds, opts);
     checks.push({ kind: "lvl2v1", expectedWinner: v.id, opponent: c.id, stats: s3, passed: all(s3) });
   }
   return checks;
 }
 
 /** Win rate (0..100) of each row unit against each column unit, 1 pick each. */
-export function winMatrix(seeds: number, balance: BalanceOverrides = {}): number[][] {
-  return UNITS.map((a) =>
-    UNITS.map((b) => {
+export function winMatrix(seeds: number, opts: EvalOptions = {}): number[][] {
+  const units = opts.units ?? UNITS;
+  return units.map((a) =>
+    units.map((b) => {
       if (a.id === b.id) return 50;
-      const s = duel(one(a.id), one(b.id), seeds, balance);
+      const s = duel(one(a.id), one(b.id), seeds, opts);
       return Math.round(((s.wins + s.draws / 2) / s.games) * 100);
     }),
   );

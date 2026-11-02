@@ -16,8 +16,8 @@ export const RULES = {
 export const BALANCE = {
   /** Extra damage dealt to the role this unit counters. */
   counterBonusPct: 40,
-  /** Extra HP and damage per level above 1. */
-  levelBonusPct: 50,
+  /** Extra HP and damage per level above 1. 100 tuned best in `--sweep` + `--tune` (50 left ~17 goals failing). */
+  levelBonusPct: 100,
 } as const;
 
 /** Battle simulation constants. See docs/SPEC.md §4. */
