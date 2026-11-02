@@ -2,7 +2,7 @@ import type { Choice, MatchState } from "@hazeschaden/game";
 import { BATTLE, getUnitType } from "@hazeschaden/shared";
 import { previewDeployment } from "@hazeschaden/sim";
 import { useEffect, useMemo, useRef } from "react";
-import { UnitArt } from "../ui/UnitArt";
+import { UnitPortrait } from "../ui/UnitPortrait";
 import { drawField, drawUnit } from "./draw";
 import type { UnitView } from "./playback";
 
@@ -54,7 +54,9 @@ export function SpawnPreview({
       if (c.kind === "levelUp") ofType.forEach((u) => levelled.add(u.id));
       else ofType.slice(-getUnitType(c.typeId).count).forEach((u) => fresh.add(u.id));
     });
-    const units: UnitView[] = deployed.map((u) => ({ ...u, maxHp: u.hp }));
+    const units: UnitView[] = deployed
+      .map((u) => ({ ...u, maxHp: u.hp, attack: null, hurt: 0, facing: (u.side === 0 ? 1 : -1) as 1 | -1, walking: false }))
+      .sort((a, b) => a.y - b.y || a.id - b.id);
     return { units, fresh, levelled };
   }, [match, choices]);
 
@@ -76,9 +78,10 @@ export function SpawnPreview({
         const k = Math.min(1, Math.max(0, (t - GROW_FROM) / GROW_MS));
         const pulse = 0.5 + 0.5 * Math.sin(t / 120);
         for (const u of units) {
-          if (fresh.has(u.id)) drawUnit(ctx, u, { grow: popIn(k), glow: 1 - k * 0.6 });
-          else if (levelled.has(u.id)) drawUnit(ctx, u, { glow: t < DURATION_MS - 400 ? pulse : 0 });
-          else drawUnit(ctx, u);
+          const time = t / 1000;
+          if (fresh.has(u.id)) drawUnit(ctx, u, { time, grow: popIn(k), glow: 1 - k * 0.6 });
+          else if (levelled.has(u.id)) drawUnit(ctx, u, { time, glow: t < DURATION_MS - 400 ? pulse : 0 });
+          else drawUnit(ctx, u, { time });
         }
       }
       if (t >= DURATION_MS) {
@@ -109,7 +112,7 @@ function ChoiceBanner({ name, choice, side, match }: { name: string; choice: Cho
   const level = match.players[side].army.find((e) => e.typeId === choice.typeId)?.level ?? 1;
   return (
     <div className={`spawn-banner side-${side} role-${u.role}`}>
-      <UnitArt typeId={choice.typeId} size={28} />
+      <UnitPortrait typeId={choice.typeId} size={34} />
       <span>
         <b>{name}</b> {choice.kind === "levelUp" ? `${u.name} ⬆ Lv${level}` : `+${u.count} ${u.name}`}
       </span>

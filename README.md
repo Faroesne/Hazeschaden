@@ -1,6 +1,6 @@
 # Hazeschaden
 
-Kompetitiver 1v1-Autobattler als Web-App. Spezifikation: [docs/SPEC.md](docs/SPEC.md) · Begriffe: [docs/GLOSSARY.md](docs/GLOSSARY.md)
+Kompetitiver 1v1-Autobattler als Web-App. Spezifikation: [docs/SPEC.md](docs/SPEC.md) · Begriffe: [docs/GLOSSARY.md](docs/GLOSSARY.md) · Grafikstil: [docs/ART_STYLE.md](docs/ART_STYLE.md)
 
 ## Stand
 

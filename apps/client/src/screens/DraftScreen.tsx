@@ -1,7 +1,7 @@
 import type { Choice, MatchState, PlayerId } from "@hazeschaden/game";
 import { RULES, getUnitType } from "@hazeschaden/shared";
 import { useEffect, useRef, useState } from "react";
-import { UnitArt } from "../ui/UnitArt";
+import { UnitPortrait } from "../ui/UnitPortrait";
 import { UnitCard } from "../ui/UnitCard";
 import { Hearts } from "../ui/Hearts";
 
@@ -86,7 +86,7 @@ export function ArmyList({ army, highlight, empty }: { army: MatchState["players
         const u = getUnitType(e.typeId);
         return (
           <div key={e.typeId} className={`army-chip role-${u.role}${highlight === e.typeId ? " highlight" : ""}`}>
-            <UnitArt typeId={e.typeId} size={24} />
+            <UnitPortrait typeId={e.typeId} size={30} />
             <div className="army-chip-text">
               <span>{u.name}</span>
               <span className="muted">

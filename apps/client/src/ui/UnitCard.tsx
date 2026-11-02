@@ -1,6 +1,6 @@
 import { BALANCE, RULES, getUnitType } from "@hazeschaden/shared";
 import { DAMAGE_LABEL, FORM_LABEL, ROLE_LABEL, beats, dps, rangeLabel } from "../text";
-import { UnitArt } from "./UnitArt";
+import { UnitPortrait } from "./UnitPortrait";
 
 export function UnitCard({
   typeId,
@@ -24,7 +24,9 @@ export function UnitCard({
       onClick={onClick}
       disabled={!onClick}
     >
-      <UnitArt typeId={typeId} size={levelUp ? 48 : 44} />
+      <span className="portrait-frame">
+        <UnitPortrait typeId={typeId} size={levelUp ? 56 : 52} />
+      </span>
       <div className="unit-body">
         <div className="unit-head">
           <span className="unit-name">{u.name}</span>
