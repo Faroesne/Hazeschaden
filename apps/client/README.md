@@ -7,5 +7,6 @@ Die spielbare Web-App. Start aus dem Repo-Root: `pnpm dev` → http://127.0.0.1:
 - `src/battle/playback.ts` – liest das Ereignis-Protokoll der Simulation (Positionen, Leben, Geschosse, Treffer); getestet in `test/`
 - `src/battle/draw.ts` – zeichnet einen Moment auf ein Canvas (Formen: ■ Tank, ▲ Fernkampf, ◆ Assassine; gelber Rand = Flächenschaden; Punkte = Level)
 - `src/battle/BattleView.tsx` – Abspielen mit max. 30 FPS, 1×/2×/4×, Überspringen
+- `public/manifest.webmanifest`, `public/sw.js`, `public/icons/` – PWA: installierbar, offline spielbar (Service Worker nur im Production-Build, Netzwerk zuerst, Cache als Rückfall)
 
-Noch offen: PWA (Manifest, Offline), Online-Modus, Login.
+Noch offen: Online-Modus, Login.

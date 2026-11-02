@@ -42,6 +42,16 @@ Einheitenwerte: `BASE_UNITS` in `packages/shared/src/units.ts` sind die Design-S
 
 Auf dem Handy testen: `pnpm dev:lan` macht den Server im **Heimnetz** sichtbar (Adresse steht in der Konsole). Nur im eigenen WLAN nutzen.
 
+### Als App installieren (PWA)
+
+Die gebaute Version ist eine installierbare Web-App und läuft danach auch offline (das ganze Spiel läuft im Browser):
+
+```bash
+pnpm build && pnpm preview   # → http://127.0.0.1:4173
+```
+
+Chrome bietet dann „App installieren“ an. Installieren geht nur über `localhost` oder HTTPS – auf dem Handy also erst über die HTTPS-Adresse von Tailscale Serve (siehe Hosting), nicht über `dev:lan`. Im Entwicklungsmodus (`pnpm dev`) ist der Offline-Cache absichtlich aus, damit Änderungen sofort sichtbar sind.
+
 ## Bewusst so gelassen: Flächenschaden gegen Masse
 
 Regel seit 2026-11-02: Arbeitet die Form gegen den erwarteten Sieger, muss er nur in ≥ 60 % der Spiele gewinnen, sonst immer (`GOALS.conflictMinWinPct`).

@@ -10,6 +10,7 @@
     "dev": "pnpm --filter @hazeschaden/client dev",
     "dev:lan": "pnpm --filter @hazeschaden/client dev:lan",
     "build": "pnpm --filter @hazeschaden/client build",
+    "preview": "pnpm --filter @hazeschaden/client preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit && pnpm --filter @hazeschaden/client typecheck",
